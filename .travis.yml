@@ -1,0 +1,20 @@
+dist: xenial
+language: python
+python: 3.7
+script: python -m compileall ./
+cache: pip
+jobs:
+  include:
+  - stage: PyPi Deployment
+    if: tag IS present
+    python: 3.7
+    deploy:
+    - provider: pypi
+      distributions: sdist bdist_wheel
+      user: jack1142
+      password:
+        secure: bQEFXItCi2Ua38+XLb2uUmq8eZYle0nWinw7gKt9vKqiOW22Y4vL+5WI1Rd36RlOzMRNXtHX+RdEF5iMHqTQ9GpBXuvA6X67x5A0Z3b+Zq4MhvyfGokAJspIzlocK7n02DJBWrbzCYTbc2j+KS/JTtw/1PsN3KZaj01v6BXgXcSwsFA0oi8/YLUaG0zCb5acqt2KQ+XwSWywi0829GiOTYdpzvAQKh3cyzFkYJ4AXeTbv4gitbEJfs6tlgqCyCWF9iHWAjQeyY4VnFwNAkxZTORlEvouRzrSxmHjA594BEEuDpAakvXb3K2SXdSP3YitTKFXayRXeTkqa1+54OmX9XCXziAg7uE1rs454ChfANJvIsQTH5fTzqTtDtEi5wzDD/xAT3HKostB7ckgLdAnd2DMyx8yzXD04wnep5RjUqTwr6qze11VfPJIABASWVMnvIfxQcqBm3pNqOcZgKQSEucSJLP80C94zlQgg/Y4fbB6v/Ie849XyCc3wkbrcYhm2jKeforj8hVwLvrU1opyN/+Ym3mHGr4Z7UkEBYCCboNvRoYjWiLoucTHZcM7u5mVKVQvAzb28yNGhX1AQCxtNphUVOA1rNwftY/RPBgonU0kzGy6+B4LgH4cAV9mmrpPsXGqLlu8mq98Jr6vkQ295SWeiCt1hL1boeOvB9/MO78=
+      skip_cleanup: true
+      on:
+        repo: jack1142/rlapi
+        tags: true

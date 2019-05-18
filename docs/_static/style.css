@@ -1,0 +1,29 @@
+.container.operations {
+  display: block;
+  margin: 0 0 24px 0;
+  padding: 24px 24px 12px;
+  background: #f6f8f8;
+  border: solid 1px #e1e4e5;
+}
+
+.container.operations::before {
+  content: 'Supported Operations';
+  display: block;
+  font-weight: bold;
+  background: #e1e4e5;
+  padding: 6px 12px;
+  margin: -24px;
+  margin-bottom: 24px;
+  font-size: 100%;
+}
+
+.container.operations > dl > dt {
+  border: none !important;
+  padding: 0;
+  background: none !important;
+  font-size: 100%;
+}
+
+.container.operations > dl > dt code {
+  color: #000;
+}
