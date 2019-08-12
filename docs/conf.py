@@ -21,9 +21,9 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = 'rlapi'
-copyright = '2019, Jakub Kuczys (jack1142)'
-author = 'Jakub Kuczys (jack1142)'
+project = "rlapi"
+copyright = "2019, Jakub Kuczys (jack1142)"
+author = "Jakub Kuczys (jack1142)"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -44,15 +44,15 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinxcontrib.asyncio'
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinxcontrib.asyncio",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The master toctree document.
 master_doc = "index"
@@ -60,7 +60,7 @@ master_doc = "index"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -77,7 +77,7 @@ default_role = "any"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Use old HTML4 writer because sphinx_rtd_theme doesn't support new one yet
 html4_writer = True
@@ -85,7 +85,7 @@ html4_writer = True
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 
 # -- Options for extensions -----------------------------------------------
@@ -93,9 +93,9 @@ html_static_path = ['_static']
 # Intersphinx
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "aiohttp": ("https://docs.aiohttp.org/en/stable/", None)
+    "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
 }
 
 
 def setup(app):
-    app.add_stylesheet('style.css')
+    app.add_stylesheet("style.css")

@@ -13,25 +13,28 @@ from .utils import json_or_text
 
 log = logging.getLogger(__name__)
 
-__all__ = ('Client',)
+__all__ = ("Client",)
 
 # valid username regexes per platform
 _PLATFORM_PATTERNS = {
-    Platform.steam: re.compile(r"""
+    Platform.steam: re.compile(
+        r"""
         (?:
             (?:https?:\/\/(?:www\.)?)?steamcommunity\.com\/
             (id|profiles)\/         # group 1 - None if input is only a username/id
         )?
         ([a-zA-Z0-9_-]{2,32})\/?    # group 2
-    """, re.VERBOSE),
-    Platform.ps4: re.compile('[a-zA-Z][a-zA-Z0-9_-]{2,15}'),
-    Platform.xboxone: re.compile('[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+')
+        """,
+        re.VERBOSE,
+    ),
+    Platform.ps4: re.compile("[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
+    Platform.xboxone: re.compile("[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
 }
 
 
 class Client:
-    RLAPI_BASE = 'https://api.rocketleague.com/api/v1'
-    STEAM_BASE = 'https://steamcommunity.com'
+    RLAPI_BASE = "https://api.rocketleague.com/api/v1"
+    STEAM_BASE = "https://steamcommunity.com"
 
     def __init__(
         self,
@@ -40,7 +43,7 @@ class Client:
         loop: Optional[asyncio.AbstractEventLoop] = None,
         tier_breakdown: Optional[
             Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
-        ] = None
+        ] = None,
     ):
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self._session = aiohttp.ClientSession(loop=self.loop)
@@ -70,9 +73,7 @@ class Client:
 
     async def _rlapi_request(self, endpoint: str) -> Union[dict, str]:
         url = self.RLAPI_BASE + endpoint
-        headers = {
-            'Authorization': f'Token {self._token}'
-        }
+        headers = {"Authorization": f"Token {self._token}"}
         return await self._request(url, headers)
 
     async def _request(
@@ -120,11 +121,11 @@ class Client:
             The player could not be found.
 
         """
-        endpoint = f'/{platform.name}/playerskills/{player_id}/'
+        endpoint = f"/{platform.name}/playerskills/{player_id}/"
         try:
             player = await self._rlapi_request(endpoint)
         except errors.HTTPException as e:
-            if e.status == 400 and 'not found' in e.message:
+            if e.status == 400 and "not found" in e.message:
                 raise errors.PlayerNotFound(
                     "Player with provided ID could not be "
                     f"found on platform {platform.name}"
@@ -204,24 +205,25 @@ class Client:
         player_id = match.group(2)
         search_type = match.group(1)
         if search_type is None:
-            search_types = ['profiles', 'id']
+            search_types = ["profiles", "id"]
         else:
             search_types = [search_type]
         ids = []
         for search_type in search_types:
-            url = self.STEAM_BASE + f'/{search_type}/{player_id}/?xml=1'
+            url = self.STEAM_BASE + f"/{search_type}/{player_id}/?xml=1"
             async with self._session.get(url) as resp:
                 if resp.status >= 400:
                     raise errors.HTTPException(resp, await resp.text())
                 steam_profile = ET.fromstring(await resp.text())
 
-            error = steam_profile.find('error')
+            error = steam_profile.find("error")
             if error is None:
-                ids.append(steam_profile.find('steamID64').text)
-            elif error.text != 'The specified profile could not be found.':
+                ids.append(steam_profile.find("steamID64").text)
+            elif error.text != "The specified profile could not be found.":
                 log.debug(
                     "Steam threw error while searching profile using '%s' method: %s",
-                    search_type, error.text
+                    search_type,
+                    error.text,
                 )
 
         return ids

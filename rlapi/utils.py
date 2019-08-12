@@ -4,7 +4,7 @@ from typing import Union
 import aiohttp
 from lxml import etree
 
-__all__ = ('json_or_text', 'stringify')
+__all__ = ("json_or_text", "stringify")
 
 
 _stringify = etree.XPath("string()")
@@ -44,7 +44,7 @@ async def json_or_text(resp: aiohttp.ClientResponse) -> Union[dict, str]:
         Response data.
 
     """
-    text = await resp.text(encoding='utf-8')
-    if 'application/json' in resp.headers[aiohttp.hdrs.CONTENT_TYPE]:
+    text = await resp.text(encoding="utf-8")
+    if "application/json" in resp.headers[aiohttp.hdrs.CONTENT_TYPE]:
         return json.loads(text)
     return text
