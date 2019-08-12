@@ -1,0 +1,65 @@
+version: 2
+mergeable:
+  # Fail the check if PR is work in progress
+  - when: pull_request.opened, pull_request.edited, pull_request.labeled, pull_request.unlabeled
+    validate:
+      # Fail the check if PR is work in progress
+      - do: title
+        must_exclude:
+          regex: ^\[WIP\]|WIP
+          message: This is work in progress. Do not merge yet.
+      - do: label
+        must_exclude:
+          regex: ^Work In Progress$
+          message: This is work in progress. Do not merge yet.
+      # Fail the check if PR's title doesn't conform conventional commit standard
+      - do: title
+        must_include:
+          regex: '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|enhance)(?:\((.+)\))?: (.+)$'
+          message: >-
+            PR title doesn't conform conventional commit standard.
+            Look in [contributing guidelines](https://github.com/jack1142/rlapi/blob/master/.github/CONTRIBUTING.md)
+            of this project for more information.
+    pass:
+      - do: checks
+        status: success
+        payload:
+          title: All checks passed!
+          summary: |
+            There were no problems with this PR.
+    fail:
+      - do: checks
+        status: failure
+        payload:
+          title: |
+            {{#ifEquals validationSuites.0.status "fail"}}
+            This PR is work in progress
+            {{else}}
+            {{#ifEquals validationSuites.1.status "fail"}}
+            This PR is work in progress
+            {{else}}
+            PR's title has to follow conventional commits spec
+            {{/ifEquals}}
+            {{/ifEquals}}
+          summary: |
+            {{#ifEquals validationSuites.0.status "fail"}}
+            This is work in progress. Do not merge yet.
+            {{else}}
+            {{#ifEquals validationSuites.1.status "fail"}}
+            This is work in progress. Do not merge yet.
+            {{else}}
+            Look in [contributing guidelines](https://github.com/jack1142/rlapi/blob/master/.github/CONTRIBUTING.md) of this project for more information.
+            {{/ifEquals}}
+            {{/ifEquals}}
+  # Suggest shortening PR's title if it exceeds 66 characters limit
+  - when: pull_request.opened
+    validate:
+      - do: title
+        must_exclude:
+          regex: ^.{67,}$
+    fail:
+      - do: comment
+        payload:
+          body: >-
+            This PR's title exceeds suggested 66 character limit.
+            You should try shortening it.
