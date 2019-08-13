@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-__all__ = ('TierEstimates',)
+__all__ = ("TierEstimates",)
 
 
 class TierEstimates:
@@ -33,17 +33,18 @@ class TierEstimates:
         Estimated amount of points for player to go a tier up.
 
     """
+
     __slots__ = (
-        'playlist',
-        'tier',
-        'division',
-        'div_down',
-        'div_up',
-        'tier_down',
-        'tier_up'
+        "playlist",
+        "tier",
+        "division",
+        "div_down",
+        "div_up",
+        "tier_down",
+        "tier_up",
     )
 
-    def __init__(self, playlist: 'Playlist'):
+    def __init__(self, playlist: "Playlist"):
         self.playlist = playlist
         self.tier: int
         self.division: int
@@ -63,11 +64,7 @@ class TierEstimates:
             return None
         try:
             divisions = playlist.breakdown[self.tier]
-            div_down = int(
-                ceil(
-                    divisions[self.division][0] - playlist.skill
-                )
-            )
+            div_down = int(ceil(divisions[self.division][0] - playlist.skill))
         except KeyError as e:
             log.debug(str(e))
             return None
@@ -85,11 +82,7 @@ class TierEstimates:
                 value = divisions[1][0]
             else:
                 value = divisions[self.division][1]
-            div_up = int(
-                ceil(
-                    value - playlist.skill
-                )
-            )
+            div_up = int(ceil(value - playlist.skill))
         except KeyError as e:
             log.debug(str(e))
             return None
@@ -103,11 +96,7 @@ class TierEstimates:
             return None
         try:
             divisions = playlist.breakdown[self.tier]
-            tier_down = int(
-                ceil(
-                    divisions[0][0] - playlist.skill
-                )
-            )
+            tier_down = int(ceil(divisions[0][0] - playlist.skill))
         except KeyError as e:
             log.debug(str(e))
             return None
@@ -121,11 +110,7 @@ class TierEstimates:
             return None
         try:
             divisions = playlist.breakdown[self.tier]
-            tier_up = int(
-                ceil(
-                    divisions[3][1] - playlist.skill
-                )
-            )
+            tier_up = int(ceil(divisions[3][1] - playlist.skill))
         except KeyError as e:
             log.debug(str(e))
             return None
@@ -148,8 +133,7 @@ class TierEstimates:
                     self.division = division
                     return
                 diff, incr = min(
-                    (abs(playlist.skill-begin), -1),
-                    (abs(playlist.skill-end), 1)
+                    (abs(playlist.skill - begin), -1), (abs(playlist.skill - end), 1)
                 )
                 try:
                     condition = diff <= lowest_diff
@@ -158,16 +142,16 @@ class TierEstimates:
                 if condition:
                     lowest_diff = diff
                     lowest_diff_tier = tier
-                    lowest_diff_division = division+incr
+                    lowest_diff_division = division + incr
 
         if lowest_diff_division == -1:
-            self.tier = lowest_diff_tier-1
+            self.tier = lowest_diff_tier - 1
             self.division = 3
             if self.tier < 1:
                 self.tier = 1
                 self.division = 0
         elif lowest_diff_division == 4:
-            self.tier = lowest_diff_tier+1
+            self.tier = lowest_diff_tier + 1
             self.division = 0
             if self.tier > playlist.tier_max:
                 self.tier = playlist.tier_max

@@ -3,11 +3,11 @@ from typing import Union
 import aiohttp
 
 __all__ = (
-    'RLApiException',
-    'IllegalUsername',
-    'PlayerNotFound',
-    'HTTPException',
-    'Unauthorized'
+    "RLApiException",
+    "IllegalUsername",
+    "PlayerNotFound",
+    "HTTPException",
+    "Unauthorized",
 )
 
 
@@ -35,11 +35,12 @@ class HTTPException(RLApiException):
     message: Union[str, dict]
         Details about error.
     """
+
     def __init__(self, response: aiohttp.ClientResponse, data: Union[str, dict]):
         self.response = response
         self.status = response.status
         if isinstance(data, dict):
-            self.message = data.get('detail', data)
+            self.message = data.get("detail", data)
         else:
             self.message = data
         super().__init__(
