@@ -3,10 +3,6 @@
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath(".."))
 
 # -- Path setup --------------------------------------------------------------
 
@@ -14,9 +10,10 @@ sys.path.insert(0, os.path.abspath(".."))
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
@@ -48,7 +45,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.asyncio",
+    "sphinxcontrib_trio",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -95,6 +92,10 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
 }
+
+# autodoc
+autodoc_member_order = "bysource"
+autodoc_typehints = "none"
 
 
 def setup(app):
