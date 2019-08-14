@@ -98,3 +98,4 @@ The following exceptions are thrown by the library.
 
 .. automodule:: rlapi.errors
     :members:
+    :show-inheritance:
