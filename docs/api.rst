@@ -21,63 +21,13 @@ Enumerations
 The API provides some enumerations for certain types of string to avoid the API
 from being stringly typed in case the strings change in the future.
 
-All enumerations are subclasses of `enum`_.
+All enumerations are subclasses of `enum.Enum`.
 
-.. _enum: https://docs.python.org/3/library/enum.html
+.. autoclass:: rlapi.PlaylistKey
+    :members:
 
-.. class:: rlapi.PlaylistKey
-
-    Represents playlist's key.
-
-    .. container:: operations
-
-        ``str(x)``
-            Returns playlist's friendly name, e.g. "Solo Standard"
-
-    .. attribute:: solo_duel
-
-        The Solo Duel playlist.
-    .. attribute:: doubles
-
-        The Doubles playlist.
-    .. attribute:: solo_standard
-
-        The Solo Standard playlist.
-    .. attribute:: standard
-
-        The Standard playlist.
-    .. attribute:: hoops
-
-        The Hoops playlist.
-    .. attribute:: rumble
-
-        The Rumble playlist.
-    .. attribute:: dropshot
-
-        The Dropshot playlist.
-    .. attribute:: snow_day
-
-        The Snow Day playlist.
-
-.. class:: rlapi.Platform
-
-    Specifies :class:`rlapi.Player`'s platform.
-
-    .. container:: operations
-
-        ``str(x)``
-            Returns platform's friendly name, e.g. "Xbox One"
-
-    .. attribute:: steam
-
-        Steam platform.
-    .. attribute:: ps4
-
-        Playstation 4 platform.
-    .. attribute:: xboxone
-
-        Xbox One platform.
-
+.. autoclass:: rlapi.Platform
+    :members:
 
 Rocket League API Models
 ------------------------
