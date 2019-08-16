@@ -21,14 +21,54 @@ If the bug report is missing this information then it'll take us longer to fix t
 
 ## Submitting a Pull Request
 
-Submitting a pull request is fairly simple, just make sure it focuses on a single aspect and doesn't manage to have scope creep and it's probably good to go. It would be incredibly lovely if the style is consistent to those found in the project. This project follows PEP-8 guidelines (mostly) with a column limit of 125.
+Submitting a pull request is fairly simple, just make sure it focuses on a single aspect and doesn't manage to have scope creep and it's probably good to go.
 
-### Git Commit Guidelines
+### Coding Rules
 
-- Use present tense (e.g. "Add feature" not "Added feature")
-- Limit all lines to 88 characters or less.
-- Reference issues or pull requests outside of the first line.
-    - Please use the shorthand `#123` and not the full URL.
+To ensure consistency throughout the source code, keep these rules in mind as you are working:
+
+* All public API methods **must be documented**.
+
+* This project follows the [Black code style](https://black.readthedocs.io/en/stable/the_black_code_style.html). You should use `black` tool to format your code before sending PR. If the source code is not properly formatted, the CI will fail and the PR cannot be merged.
+
+### Commit Message Guidelines
+
+This project has very precise rules over how its git commit messages can be formatted. This leads to **more readable messages** that are easy to follow when looking through the **project history**. While I recommend using those conventions in all of your commit messages, this project only requires contributors to use valid commit message header format in title of PR.
+
+#### Commit Message Header Format
+
+The header has a special format that includes a **type**, a **scope** and a **subject**:
+
+```
+<type>(<scope>): <subject>
+```
+
+The **scope** of the header can be omitted (`<type>: <subject>`).
+
+Our recommended character limit is 66 characters, so please try to fit in it. Commit messages are easier to read on GitHub when their header doesn't exceed it. However, if shortening it to that value will make the message less clear, you are allowed to use up to 100 characters.
+
+## Type
+Must be one of the following:
+
+* **build**: Changes that affect the build system or external dependencies (example scopes: setup.cfg, manifest)
+* **chore**: Other changes that don't modify src or test files
+* **ci**: Changes to our CI configuration files and scripts (example scopes: Travis)
+* **docs**: Documentation only changes
+* **enhance**: A code change that improves current functionality
+* **feat**: A new feature
+* **fix**: A bug fix
+* **perf**: A code change that improves performance
+* **refactor**: A code change that neither fixes a bug nor adds a feature
+* **revert**: Reverts a previous commit
+* **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+* **test**: Adding missing tests or correcting existing tests
+
+### Subject
+The subject contains a succinct description of the change:
+
+* use the imperative, present tense: "change" not "changed" nor "changes"
+* don't capitalize the first letter
+* no dot (.) at the end
 
 If you do not meet any of these guidelines, don't fret. Chances are they will be fixed upon rebasing but please do try to meet them to remove some of the workload.
 
