@@ -52,6 +52,8 @@ Please take a look at our [contributing guidelines](https://github.com/jack1142/
 
 Distributed under the MIT license. See ``LICENSE`` for more information.
 
+This project bundles [lxml-stubs](https://github.com/JelleZijlstra/lxml-stubs) which are distributed on Apache License 2.0
+
 Contributing guidelines and issue templates are taken from [discord.py project](https://github.com/Rapptz/discord.py)
 
 ---
