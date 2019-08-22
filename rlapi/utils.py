@@ -1,13 +1,19 @@
 import json
-from typing import Union
+from typing import Any, Union
 
 import aiohttp
 from lxml import etree
+from typing_extensions import Literal
 
 __all__ = ("json_or_text", "stringify")
 
 
 _stringify = etree.XPath("string()")
+
+
+class AlwaysGreaterOrEqual:
+    def __ge__(self, other: Any) -> Literal[True]:
+        return True
 
 
 def stringify(element: etree._Element):

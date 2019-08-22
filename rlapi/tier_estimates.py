@@ -1,7 +1,8 @@
 import logging
 from math import ceil
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
+from .utils import AlwaysGreaterOrEqual
 
 if TYPE_CHECKING:
     from .player import Playlist
@@ -125,7 +126,7 @@ class TierEstimates:
             self.division = playlist.division
             return
 
-        lowest_diff = None
+        lowest_diff: Union[float, int, AlwaysGreaterOrEqual] = AlwaysGreaterOrEqual()
         for tier, divisions in playlist.breakdown.items():
             for division, (begin, end) in divisions.items():
                 if begin <= playlist.skill <= end:
@@ -135,10 +136,7 @@ class TierEstimates:
                 diff, incr = min(
                     (abs(playlist.skill - begin), -1), (abs(playlist.skill - end), 1)
                 )
-                try:
-                    condition = diff <= lowest_diff
-                except TypeError:
-                    condition = True
+                condition = diff <= lowest_diff
                 if condition:
                     lowest_diff = diff
                     lowest_diff_tier = tier
