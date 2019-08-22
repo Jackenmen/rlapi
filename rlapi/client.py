@@ -3,8 +3,8 @@ import logging
 import re
 from typing import Tuple, Set, List, Dict, Optional, Union
 
-import defusedxml.ElementTree as ET
 import aiohttp
+from lxml import etree
 
 from . import errors
 from .enums import Platform
@@ -48,6 +48,7 @@ class Client:
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self._session = aiohttp.ClientSession(loop=self.loop)
         self._token = token
+        self._xml_parser = etree.XMLParser(resolve_entities=False)
         self.tier_breakdown: Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
         if tier_breakdown is None:
             self.tier_breakdown = {}
@@ -214,7 +215,7 @@ class Client:
             async with self._session.get(url) as resp:
                 if resp.status >= 400:
                     raise errors.HTTPException(resp, await resp.text())
-                steam_profile = ET.fromstring(await resp.text())
+                steam_profile = etree.fromstring(await resp.read(), self._xml_parser)
 
             error = steam_profile.find("error")
             if error is None:
