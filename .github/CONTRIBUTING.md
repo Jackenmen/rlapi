@@ -28,8 +28,8 @@ Submitting a pull request is fairly simple, just make sure it focuses on a singl
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
 
 * All public API methods **must be documented**.
-
 * This project follows the [Black code style](https://black.readthedocs.io/en/stable/the_black_code_style.html). You should use `black` tool to format your code before sending PR. If the source code is not properly formatted, the CI will fail and the PR cannot be merged.
+* To make this project more maintainable, it uses type hints, The CI runs `mypy` against source code on each PR so all the new code has to be properly typed as well.
 
 ### Commit Message Guidelines
 
@@ -70,7 +70,7 @@ The subject contains a succinct description of the change:
 * don't capitalize the first letter
 * no dot (.) at the end
 
-If you do not meet any of these guidelines, don't fret. Chances are they will be fixed upon rebasing but please do try to meet them to remove some of the workload.
+If you do not meet any of these guidelines, don't worry. Chances are they will be fixed upon rebasing but please do try to meet them to remove some of the workload.
 
 ---
 
