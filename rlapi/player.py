@@ -32,7 +32,7 @@ __all__ = ("Playlist", "SeasonRewards", "Player")
 
 
 class Playlist:
-    """
+    """Playlist()
     Represents Rocket League playlist stats data.
 
     .. container:: operations
@@ -105,7 +105,7 @@ class Playlist:
 
 
 class SeasonRewards:
-    """
+    """SeasonRewards()
     Represents season rewards informations.
 
     Attributes
@@ -137,7 +137,7 @@ class SeasonRewards:
 
 
 class Player:
-    """
+    """Player()
     Represents Rocket League Player
 
     Attributes
