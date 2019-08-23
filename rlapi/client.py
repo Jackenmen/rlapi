@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import re
-from typing import Tuple, Set, List, Dict, Optional, Union
+from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union
 
 import aiohttp
 from lxml import etree
@@ -46,7 +46,7 @@ class Client:
         ] = None,
     ):
         self.loop = asyncio.get_event_loop() if loop is None else loop
-        self._session = aiohttp.ClientSession(loop=self.loop)
+        self._session = aiohttp.client.ClientSession(loop=self.loop)
         self._token = token
         self._xml_parser = etree.XMLParser(resolve_entities=False)
         self.tier_breakdown: Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
@@ -55,12 +55,12 @@ class Client:
         else:
             self.tier_breakdown = tier_breakdown
 
-    def destroy(self):
+    def destroy(self) -> None:
         self._session.detach()
 
     __del__ = destroy
 
-    def change_token(self, token: str):
+    def change_token(self, token: str) -> None:
         """
         Change client's token.
 
@@ -72,19 +72,24 @@ class Client:
         """
         self._token = token
 
-    async def _rlapi_request(self, endpoint: str) -> Union[dict, str]:
+    async def _rlapi_request(self, endpoint: str) -> List[Dict[str, Any]]:
         url = self.RLAPI_BASE + endpoint
         headers = {"Authorization": f"Token {self._token}"}
-        return await self._request(url, headers)
+        # RL API returns JSON list on success
+        data: List[Dict[str, Any]] = await self._request(url, headers)
+        return data
 
     async def _request(
-        self, url: str, headers: Optional[dict] = None
-    ) -> Union[dict, str]:
+        self, url: str, headers: Optional[aiohttp.typedefs.LooseHeaders] = None
+    ) -> Any:
         for tries in range(5):
             async with self._session.get(url, headers=headers) as resp:
                 data = await json_or_text(resp)
-                if 300 > resp.status >= 200:
+                if resp.status == 200:
                     return data
+
+                # response data should only be one of those types if error occurs
+                data: Union[Dict[str, Any], str]  # type: ignore
 
                 # received 500 or 502 error, API has some troubles, retrying
                 if resp.status in {500, 502}:
@@ -134,12 +139,12 @@ class Client:
             raise
 
         return Player(
-            **player[0], platform=platform, tier_breakdown=self.tier_breakdown
+            platform=platform, tier_breakdown=self.tier_breakdown, data=player[0]
         )
 
     async def get_player(
         self, player_id: str, platform: Optional[Platform] = None
-    ) -> Tuple[Player]:
+    ) -> Tuple[Player, ...]:
         """
         Get player skills for player ID by searching in all platforms.
 
@@ -167,7 +172,7 @@ class Client:
         if platform is not None:
             return (await self._get_stats(player_id, platform),)
 
-        players = []
+        players: List[Player] = []
         for platform in Platform:
             try:
                 players += await self._find_profile(player_id, platform)
@@ -202,14 +207,16 @@ class Client:
                 log.debug(str(e))
         return players
 
-    async def _find_steam_ids(self, match: re.Match) -> List[str]:
+    async def _find_steam_ids(self, match: Match[str]) -> List[str]:
         player_id = match.group(2)
         search_type = match.group(1)
         if search_type is None:
-            search_types = ["profiles", "id"]
+            # code unreachable bug for Match[str]
+            # see https://github.com/python/mypy/issues/7363
+            search_types = ["profiles", "id"]  # type: ignore # mypy bug
         else:
             search_types = [search_type]
-        ids = []
+        ids: List[str] = []
         for search_type in search_types:
             url = self.STEAM_BASE + f"/{search_type}/{player_id}/?xml=1"
             async with self._session.get(url) as resp:
@@ -219,7 +226,23 @@ class Client:
 
             error = steam_profile.find("error")
             if error is None:
-                ids.append(steam_profile.find("steamID64").text)
+                steam_id_element = steam_profile.find("steamID64")
+                if steam_id_element is None:
+                    log.debug(
+                        "Steam didn't include 'steamID64' element"
+                        " in response (profile found using '%s' method).",
+                        search_type,
+                    )
+                    continue
+                steam_id: Optional[str] = steam_id_element.text  # type: ignore
+                if steam_id is None:
+                    log.debug(
+                        "'steamID64' element in response is empty"
+                        " (profile found using '%s' method).",
+                        search_type,
+                    )
+                    continue
+                ids.append(steam_id)
             elif error.text != "The specified profile could not be found.":
                 log.debug(
                     "Steam threw error while searching profile using '%s' method: %s",

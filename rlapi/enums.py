@@ -43,6 +43,7 @@ class Platform(Enum):
             Returns platform's friendly name, e.g. "Xbox One"
     """
 
+    value: str
     #: The Steam platform.
     steam = "Steam"
     #: The Playstation 4 platform.

@@ -1,5 +1,5 @@
 import json
-from typing import Any, Union
+from typing import Any, Callable
 
 import aiohttp
 from lxml import etree
@@ -8,7 +8,9 @@ from typing_extensions import Literal
 __all__ = ("json_or_text", "stringify")
 
 
-_stringify = etree.XPath("string()")
+_stringify: Callable[[etree._Element], str] = etree.XPath(  # type: ignore
+    "string()", smart_strings=False
+)
 
 
 class AlwaysGreaterOrEqual:
@@ -16,7 +18,7 @@ class AlwaysGreaterOrEqual:
         return True
 
 
-def stringify(element: etree._Element):
+def stringify(element: etree._Element) -> str:
     """
     Returns element node's text, stripped from whitespace.
 
@@ -34,7 +36,7 @@ def stringify(element: etree._Element):
     return _stringify(element).strip()
 
 
-async def json_or_text(resp: aiohttp.ClientResponse) -> Union[dict, str]:
+async def json_or_text(resp: aiohttp.ClientResponse) -> Any:
     """
     Returns json dict, if response's content type is json,
     or raw text otherwise.
@@ -50,7 +52,7 @@ async def json_or_text(resp: aiohttp.ClientResponse) -> Union[dict, str]:
         Response data.
 
     """
-    text = await resp.text(encoding="utf-8")
+    text: str = await resp.text(encoding="utf-8")
     if "application/json" in resp.headers[aiohttp.hdrs.CONTENT_TYPE]:
         return json.loads(text)
     return text
