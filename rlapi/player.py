@@ -120,12 +120,12 @@ class SeasonRewards:
         Player's season reward level.
     wins: int
         Player's season reward wins.
-    reward_ready: bool
+    can_advance: bool
         Tells if player can advance in season rewards.
 
     """
 
-    __slots__ = ("level", "wins", "reward_ready")
+    __slots__ = ("level", "wins", "can_advance")
 
     def __init__(self, *, highest_tier: int = 0, data: Dict[str, Any]) -> None:
         self.level: int = data.get("level", 0)
@@ -134,11 +134,11 @@ class SeasonRewards:
         self.wins: int = data.get("wins", 0)
         if self.wins is None:
             self.wins = 0
-        self.reward_ready: bool
+        self.can_advance: bool
         if self.level == 0 or self.level * 3 < highest_tier:
-            self.reward_ready = True
+            self.can_advance = True
         else:
-            self.reward_ready = False
+            self.can_advance = False
 
 
 class Player:
