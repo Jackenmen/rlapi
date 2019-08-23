@@ -15,7 +15,7 @@ __all__ = ("TierEstimates",)
 
 
 class TierEstimates:
-    """
+    """TierEstimates()
     Represents Rocket League playlist's tier estimates.
 
     Attributes
