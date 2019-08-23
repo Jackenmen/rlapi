@@ -190,14 +190,9 @@ class Player:
         player_skills = data.get("player_skills", [])
         self.tier_breakdown = tier_breakdown if tier_breakdown is not None else {}
         self._prepare_playlists(player_skills)
-        self.highest_tier: int
-        if self.playlists:
-            tiers = []
-            for playlist in self.playlists.values():
-                tiers.append(playlist.tier)
-            self.highest_tier = max(tiers)
-        else:
-            self.highest_tier = 0
+        self.highest_tier = max(
+            (playlist.tier for playlist in self.playlists.values()), default=0
+        )
         season_rewards = data.get("season_rewards", {})
         self.season_rewards = SeasonRewards(
             highest_tier=self.highest_tier, data=season_rewards
