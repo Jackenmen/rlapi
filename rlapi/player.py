@@ -1,5 +1,5 @@
 import contextlib
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from .enums import Platform, PlaylistKey
 from .tier_estimates import TierEstimates
@@ -82,17 +82,23 @@ class Playlist:
         "tier_estimates",
     )
 
-    def __init__(self, **kwargs):
-        self.key: Union[PlaylistKey, int] = kwargs.get("key")
-        self.tier: int = kwargs.get("tier", 0)
-        self.division: int = kwargs.get("division", 0)
-        self.mu: float = kwargs.get("mu", 25)
-        self.skill: int = kwargs.get("skill", self.mu * 20 + 100)
-        self.sigma: float = kwargs.get("sigma", 8.333)
-        self.win_streak: int = kwargs.get("win_streak", 0)
-        self.matches_played: int = kwargs.get("matches_played", 0)
-        self.tier_max: int = kwargs.get("tier_max", 19)
-        self.breakdown: Dict[int, Dict[int, List[int]]] = kwargs.get("breakdown", {})
+    def __init__(
+        self,
+        *,
+        breakdown: Optional[Dict[int, Dict[int, List[Union[float, int]]]]] = None,
+        playlist_key: Union[PlaylistKey, int],
+        data: Dict[str, Any],
+    ):
+        self.key = playlist_key
+        self.tier: int = data.get("tier", 0)
+        self.division: int = data.get("division", 0)
+        self.mu: float = data.get("mu", 25)
+        self.skill: int = data.get("skill", self.mu * 20 + 100)
+        self.sigma: float = data.get("sigma", 8.333)
+        self.win_streak: int = data.get("win_streak", 0)
+        self.matches_played: int = data.get("matches_played", 0)
+        self.tier_max: int = data.get("tier_max", 19)
+        self.breakdown = breakdown if breakdown is not None else {}
         self.tier_estimates = TierEstimates(self)
 
     def __str__(self) -> str:
@@ -121,14 +127,13 @@ class SeasonRewards:
 
     __slots__ = ("level", "wins", "reward_ready")
 
-    def __init__(self, **kwargs):
-        self.level: int = kwargs.get("level", 0)
+    def __init__(self, *, highest_tier: int = 0, data: Dict[str, Any]) -> None:
+        self.level: int = data.get("level", 0)
         if self.level is None:
             self.level = 0
-        self.wins: int = kwargs.get("wins", 0)
+        self.wins: int = data.get("wins", 0)
         if self.wins is None:
             self.wins = 0
-        highest_tier = kwargs.get("highest_tier", 0)
         self.reward_ready: bool
         if self.level == 0 or self.level * 3 < highest_tier:
             self.reward_ready = True
@@ -169,30 +174,36 @@ class Player:
         "season_rewards",
     )
 
-    def __init__(self, **kwargs):
-        self.platform: Platform = kwargs.get("platform")
-        self.user_name: str = kwargs.get("user_name")
-        self.player_id: str = kwargs.get("user_id", self.user_name)
+    def __init__(
+        self,
+        *,
+        tier_breakdown: Optional[
+            Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
+        ] = None,
+        platform: Platform,
+        data: Dict[str, Any],
+    ) -> None:
+        self.platform = platform
+        self.user_name: str = data.get("user_name", "")
+        self.player_id: str = data.get("user_id", self.user_name)
         self.playlists: Dict[Union[PlaylistKey, int], Playlist] = {}
-        player_skills = kwargs.get("player_skills", [])
-        self.tier_breakdown: Dict[
-            int, Dict[int, Dict[int, List[Union[float, int]]]]
-        ] = kwargs.get("tier_breakdown", {})
+        player_skills = data.get("player_skills", [])
+        self.tier_breakdown = tier_breakdown if tier_breakdown is not None else {}
         self._prepare_playlists(player_skills)
         self.highest_tier: int
         if self.playlists:
-            self.highest_tier = []
+            tiers = []
             for playlist in self.playlists.values():
-                self.highest_tier.append(playlist.tier)
-            self.highest_tier = max(self.highest_tier)
+                tiers.append(playlist.tier)
+            self.highest_tier = max(tiers)
         else:
             self.highest_tier = 0
-        season_rewards = kwargs.get("season_rewards", {})
+        season_rewards = data.get("season_rewards", {})
         self.season_rewards = SeasonRewards(
-            **season_rewards, highest_tier=self.highest_tier
+            highest_tier=self.highest_tier, data=season_rewards
         )
 
-    def get_playlist(self, playlist_key):
+    def get_playlist(self, playlist_key: PlaylistKey) -> Optional[Playlist]:
         """
         Get playlist for the player.
 
@@ -203,20 +214,22 @@ class Player:
 
         Returns
         -------
-        `Playlist`
+        `Playlist`, optional
             Playlist object for provided playlist key.
 
         """
         return self.playlists.get(playlist_key)
 
-    def add_playlist(self, playlist):
-        playlist["key"] = playlist.pop("playlist")
-        breakdown = self.tier_breakdown.get(playlist["key"], {})
+    def add_playlist(self, playlist: Dict[str, Any]) -> None:
+        playlist_key = playlist.pop("playlist")
+        breakdown = self.tier_breakdown.get(playlist_key, {})
         with contextlib.suppress(ValueError):
-            playlist["key"] = PlaylistKey(playlist["key"])
+            playlist_key = PlaylistKey(playlist_key)
 
-        self.playlists[playlist["key"]] = Playlist(**playlist, breakdown=breakdown)
+        self.playlists[playlist_key] = Playlist(
+            breakdown=breakdown, playlist_key=playlist_key, data=playlist
+        )
 
-    def _prepare_playlists(self, player_skills):
+    def _prepare_playlists(self, player_skills: List[Dict[str, Any]]) -> None:
         for playlist in player_skills:
             self.add_playlist(playlist)

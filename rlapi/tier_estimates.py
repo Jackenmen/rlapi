@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import logging
 from math import ceil
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
+from .utils import AlwaysGreaterOrEqual
 
 if TYPE_CHECKING:
     from .player import Playlist
@@ -44,7 +47,7 @@ class TierEstimates:
         "tier_up",
     )
 
-    def __init__(self, playlist: "Playlist"):
+    def __init__(self, playlist: Playlist):
         self.playlist = playlist
         self.tier: int
         self.division: int
@@ -53,12 +56,12 @@ class TierEstimates:
         else:
             self.tier = playlist.tier
             self.division = playlist.division
-        self.div_down: Optional[int] = self._estimate_div_down()
-        self.div_up: Optional[int] = self._estimate_div_up()
-        self.tier_down: Optional[int] = self._estimate_tier_down()
-        self.tier_up: Optional[int] = self._estimate_tier_up()
+        self.div_down = self._estimate_div_down()
+        self.div_up = self._estimate_div_up()
+        self.tier_down = self._estimate_tier_down()
+        self.tier_up = self._estimate_tier_up()
 
-    def _estimate_div_down(self):
+    def _estimate_div_down(self) -> Optional[int]:
         playlist = self.playlist
         if self.tier == 1 and self.division == 0 or self.tier == 0:
             return None
@@ -72,7 +75,7 @@ class TierEstimates:
             div_down = -1
         return div_down
 
-    def _estimate_div_up(self):
+    def _estimate_div_up(self) -> Optional[int]:
         playlist = self.playlist
         if self.tier == playlist.tier_max or self.tier == 0:
             return None
@@ -90,7 +93,7 @@ class TierEstimates:
             div_up = 1
         return div_up
 
-    def _estimate_tier_down(self):
+    def _estimate_tier_down(self) -> Optional[int]:
         playlist = self.playlist
         if self.tier in {0, 1}:
             return None
@@ -104,7 +107,7 @@ class TierEstimates:
             tier_down = -1
         return tier_down
 
-    def _estimate_tier_up(self):
+    def _estimate_tier_up(self) -> Optional[int]:
         playlist = self.playlist
         if self.tier in {0, playlist.tier_max}:
             return None
@@ -118,14 +121,14 @@ class TierEstimates:
             tier_up = 1
         return tier_up
 
-    def _estimate_current_tier(self):
+    def _estimate_current_tier(self) -> None:
         playlist = self.playlist
         if not playlist.breakdown:
             self.tier = playlist.tier
             self.division = playlist.division
             return
 
-        lowest_diff = None
+        lowest_diff: Union[float, int, AlwaysGreaterOrEqual] = AlwaysGreaterOrEqual()
         for tier, divisions in playlist.breakdown.items():
             for division, (begin, end) in divisions.items():
                 if begin <= playlist.skill <= end:
@@ -135,10 +138,7 @@ class TierEstimates:
                 diff, incr = min(
                     (abs(playlist.skill - begin), -1), (abs(playlist.skill - end), 1)
                 )
-                try:
-                    condition = diff <= lowest_diff
-                except TypeError:
-                    condition = True
+                condition = diff <= lowest_diff
                 if condition:
                     lowest_diff = diff
                     lowest_diff_tier = tier

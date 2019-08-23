@@ -4,9 +4,8 @@ from typing import Dict, List
 
 from lxml import etree
 
-from rlapi import Client, PlaylistKey
-from rlapi import errors
-from rlapi.player import RANKS, DIVISIONS
+from rlapi import Client, PlaylistKey, errors
+from rlapi.player import DIVISIONS, RANKS
 from rlapi.utils import stringify
 
 log = logging.getLogger(__name__)
@@ -84,6 +83,8 @@ async def get_tier_breakdown(
     return tier_breakdown
 
 
-async def _get_playlist_breakdown(client: Client, playlist_id: int):
+async def _get_playlist_breakdown(client: Client, playlist_id: int) -> str:
     url = f"https://rocketleague.tracker.network/distribution/{playlist_id}"
-    return await client._request(url)
+    # Tracker Network request returns html code
+    text: str = await client._request(url)
+    return text

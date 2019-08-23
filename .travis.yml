@@ -4,10 +4,11 @@ python: 3.7
 jobs:
   include:
     - stage: "Tests"
-      name: "Compile all"
+      name: "Compile all, check with mypy"
       script:
-        - pip install -U .
+        - pip install -U .[tests]
         - python -m compileall ./
+        - mypy rlapi rlapi/ext
     - name: "Style check"
       script:
         - pip install -U .[style]

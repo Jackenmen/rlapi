@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Dict, Union
 
 import aiohttp
 
@@ -36,7 +36,9 @@ class HTTPException(RLApiException):
         Details about error.
     """
 
-    def __init__(self, response: aiohttp.ClientResponse, data: Union[str, dict]):
+    def __init__(
+        self, response: aiohttp.ClientResponse, data: Union[Dict[str, Any], str]
+    ) -> None:
         self.response = response
         self.status = response.status
         if isinstance(data, dict):
