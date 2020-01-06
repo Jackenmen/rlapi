@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "rlapi"
-copyright = "2019, Jakub Kuczys (jack1142)"
+copyright = "2018-2020, Jakub Kuczys (jack1142)"
 author = "Jakub Kuczys (jack1142)"
 
 # The version info for the project you're documenting, acts as replacement for
