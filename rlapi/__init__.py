@@ -1,7 +1,7 @@
 __author__ = "Jakub Kuczys (jack1142)"
 
 __license__ = "MIT License"
-__copyright__ = "Copyright 2019 Jakub Kuczys"
+__copyright__ = "Copyright (c) 2018-2020 Jakub Kuczys"
 
 import logging
 import pkgutil
