@@ -1,19 +1,21 @@
 dist: xenial
 language: python
-python: 3.7
+python:
+  - 3.7
+  - 3.8
+script:
+  - pip install -U .[tests]
+  - python -m compileall ./
+  - mypy rlapi rlapi/ext
 jobs:
   include:
-    - stage: "Tests"
-      name: "Compile all, check with mypy"
-      script:
-        - pip install -U .[tests]
-        - python -m compileall ./
-        - mypy rlapi rlapi/ext
     - name: "Style check"
+      python: 3.7
       script:
         - pip install -U .[style]
         - black --check ./
     - name: "Build docs"
+      python: 3.7
       script:
         - pip install -U .[docs]
         - sphinx-build docs docs/_build/html -W -b html
@@ -28,4 +30,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: jack1142/rlapi
+    python: 3.7
     tags: true
