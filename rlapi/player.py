@@ -90,13 +90,26 @@ class Playlist:
         data: Dict[str, Any],
     ):
         self.key = playlist_key
-        self.tier: int = data.get("tier", 0)
-        self.division: int = data.get("division", 0)
-        self.mu: float = data.get("mu", 25)
-        self.skill: int = data.get("skill", self.mu * 20 + 100)
-        self.sigma: float = data.get("sigma", 8.333)
-        self.win_streak: int = data.get("win_streak", 0)
-        self.matches_played: int = data.get("matches_played", 0)
+        # only mu and sigma always exist, rest might be None or not be part of the dict
+        self.tier: int = data.get("tier") or 0
+        self.division: int = data.get("division") or 0
+
+        mu: Optional[float] = data.get("mu")
+        self.mu: float
+        if mu is not None:
+            self.mu = mu
+        else:
+            self.mu = 25
+        skill: Optional[int] = data.get("skill")
+        self.skill: int
+        if skill is not None:
+            self.skill = skill
+        else:
+            self.skill = int(self.mu * 20 + 100)
+
+        self.sigma: float = data.get("sigma") or 8.333
+        self.win_streak: int = data.get("win_streak") or 0
+        self.matches_played: int = data.get("matches_played") or 0
         self.tier_max: int = data.get("tier_max", 19)
         self.breakdown = breakdown if breakdown is not None else {}
         self.tier_estimates = TierEstimates(self)
