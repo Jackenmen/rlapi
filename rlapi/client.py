@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import re
-from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union, cast
 
 import aiohttp
 from lxml import etree
@@ -9,6 +9,7 @@ from lxml import etree
 from . import errors
 from .enums import Platform
 from .player import Player
+from .typedefs import TierBreakdownType
 from .utils import json_or_text
 
 log = logging.getLogger(__name__)
@@ -41,17 +42,17 @@ class Client:
         token: str,
         *,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        tier_breakdown: Optional[
-            Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
-        ] = None,
+        tier_breakdown: Optional[TierBreakdownType] = None,
     ):
         self.loop = asyncio.get_event_loop() if loop is None else loop
         self._session = aiohttp.client.ClientSession(loop=self.loop)
         self._token = token
         self._xml_parser = etree.XMLParser(resolve_entities=False)
-        self.tier_breakdown: Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
+        self.tier_breakdown: TierBreakdownType
         if tier_breakdown is None:
-            self.tier_breakdown = {}
+            # cast of empty list to a type needed here
+            # see https://github.com/python/mypy/issues/3283
+            self.tier_breakdown = cast(TierBreakdownType, {})
         else:
             self.tier_breakdown = tier_breakdown
 

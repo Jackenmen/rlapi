@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from .enums import Platform, PlaylistKey
 from .tier_estimates import TierEstimates
+from .typedefs import PlaylistBreakdownType, TierBreakdownType
 
 RANKS = (
     "Unranked",
@@ -85,7 +86,7 @@ class Playlist:
     def __init__(
         self,
         *,
-        breakdown: Optional[Dict[int, Dict[int, List[Union[float, int]]]]] = None,
+        breakdown: Optional[PlaylistBreakdownType] = None,
         playlist_key: Union[PlaylistKey, int],
         data: Dict[str, Any],
     ):
@@ -190,9 +191,7 @@ class Player:
     def __init__(
         self,
         *,
-        tier_breakdown: Optional[
-            Dict[int, Dict[int, Dict[int, List[Union[float, int]]]]]
-        ] = None,
+        tier_breakdown: Optional[TierBreakdownType] = None,
         platform: Platform,
         data: Dict[str, Any],
     ) -> None:
