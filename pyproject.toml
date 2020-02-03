@@ -1,4 +1,5 @@
 [tool.black]
+target-versions = ['py37', 'py38']
 exclude = '''
   /(
       \.eggs         # exclude a few common directories in the
