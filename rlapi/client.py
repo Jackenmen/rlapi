@@ -38,14 +38,9 @@ class Client:
     STEAM_BASE = "https://steamcommunity.com"
 
     def __init__(
-        self,
-        token: str,
-        *,
-        loop: Optional[asyncio.AbstractEventLoop] = None,
-        tier_breakdown: Optional[TierBreakdownType] = None,
+        self, token: str, *, tier_breakdown: Optional[TierBreakdownType] = None
     ):
-        self.loop = asyncio.get_event_loop() if loop is None else loop
-        self._session = aiohttp.client.ClientSession(loop=self.loop)
+        self._session = aiohttp.client.ClientSession()
         self._token = token
         self._xml_parser = etree.XMLParser(resolve_entities=False)
         self.tier_breakdown: TierBreakdownType
@@ -94,7 +89,7 @@ class Client:
 
                 # received 500 or 502 error, API has some troubles, retrying
                 if resp.status in {500, 502}:
-                    await asyncio.sleep(1 + tries * 2, loop=self.loop)
+                    await asyncio.sleep(1 + tries * 2)
                     continue
                 # token is invalid
                 if resp.status == 401:
