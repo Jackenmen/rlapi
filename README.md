@@ -6,6 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjack1142%2Frlapi.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjack1142%2Frlapi?ref=badge_shield)
 
 ## Installation
 
@@ -60,3 +61,6 @@ Contributing guidelines and issue templates are taken from [discord.py project](
 
 > Jakub Kuczys &nbsp;&middot;&nbsp;
 > GitHub [@jack1142](https://github.com/jack1142)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjack1142%2Frlapi.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjack1142%2Frlapi?ref=badge_large)
