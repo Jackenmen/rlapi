@@ -135,7 +135,10 @@ class Client:
             raise
 
         return Player(
-            platform=platform, tier_breakdown=self.tier_breakdown, data=player[0]
+            player_id=player_id,
+            platform=platform,
+            tier_breakdown=self.tier_breakdown,
+            data=player[0],
         )
 
     async def get_player(
