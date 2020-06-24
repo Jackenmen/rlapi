@@ -163,10 +163,12 @@ class Player:
     ----------
     platform: `Platform`
         Player's platform.
+    player_id: str
+        ``player_id`` as passed to `Client.get_player()`.
+    user_id: str, optional
+        Player's user ID, ``None`` for non-Steam players.
     user_name: str
         Player's username (display name)
-    player_id: str
-        Player's user ID, same as `user_name` except for Steam players.
     playlists: dict
         Dictionary mapping `PlaylistKey` with `Playlist`.
     tier_breakdown: dict
@@ -180,8 +182,9 @@ class Player:
 
     __slots__ = (
         "platform",
-        "user_name",
         "player_id",
+        "user_id",
+        "user_name",
         "playlists",
         "tier_breakdown",
         "highest_tier",
@@ -193,18 +196,23 @@ class Player:
         *,
         tier_breakdown: Optional[TierBreakdownType] = None,
         platform: Platform,
+        player_id: str,
         data: Dict[str, Any],
     ) -> None:
         self.platform = platform
-        self.user_name: str = data.get("user_name", "")
-        self.player_id: str = data.get("user_id", self.user_name)
+        self.player_id = player_id
+        self.user_id: Optional[str] = data.get("user_id")
+        self.user_name: str = data["user_name"]
+
         self.playlists: Dict[Union[PlaylistKey, int], Playlist] = {}
         player_skills = data.get("player_skills", [])
         self.tier_breakdown = tier_breakdown if tier_breakdown is not None else {}
         self._prepare_playlists(player_skills)
+
         self.highest_tier = max(
             (playlist.tier for playlist in self.playlists.values()), default=0
         )
+
         season_rewards = data.get("season_rewards", {})
         self.season_rewards = SeasonRewards(
             highest_tier=self.highest_tier, data=season_rewards
