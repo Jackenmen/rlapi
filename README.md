@@ -1,6 +1,7 @@
 # rlapi
 > Async ready API wrapper for Rocket League API written in Python.
 
+[![Subscribe on Patreon](https://img.shields.io/badge/Support%20me%20on-Patreon-orange.svg?logo=patreon)](https://www.patreon.com/Jackenmen)
 [![Build Status](https://travis-ci.com/jack1142/rlapi.svg)](https://travis-ci.com/jack1142/rlapi)
 [![Documentation Status](https://readthedocs.org/projects/rlapi/badge/)](https://rlapi.readthedocs.io/en/latest/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
