@@ -50,7 +50,7 @@ Read [rlapi's documentation](https://rlapi.readthedocs.io/en/latest/).
 
 ## Contributing
 
-Please take a look at our [contributing guidelines](https://github.com/jack1142/rlapi/blob/master/.github/CONTRIBUTING.md) if you're interested in helping!
+Please take a look at our [contributing guidelines](https://github.com/jack1142/rlapi/blob/main/.github/CONTRIBUTING.md) if you're interested in helping!
 
 
 ## License
