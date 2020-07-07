@@ -8,6 +8,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
+> **Rocket League API is currently in closed beta and Psyonix doesn't give out keys easily.**
+>
+> To request API access, you should contact Psyonix by email RLPublicAPI@psyonix.com and hope for positive response.
+
 ## Installation
 
 **Python 3.7 or higher is required**
