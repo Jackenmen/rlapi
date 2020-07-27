@@ -123,6 +123,18 @@ class Playlist:
         except IndexError:
             return "Unknown"
 
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__}"
+            f" {self.key};"
+            f" Rank {self};"
+            f" mu={self.mu}"
+            f" skill={self.skill}"
+            f" win_streak={self.win_streak}"
+            f" matches_played={self.matches_played}"
+            f">"
+        )
+
 
 class SeasonRewards:
     """SeasonRewards()
@@ -153,6 +165,15 @@ class SeasonRewards:
             self.can_advance = True
         else:
             self.can_advance = False
+
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__}"
+            f" level={self.level}"
+            f" wins={self.wins}"
+            f" can_advance={self.can_advance}"
+            f">"
+        )
 
 
 class Player:
@@ -216,6 +237,15 @@ class Player:
         season_rewards = data.get("season_rewards", {})
         self.season_rewards = SeasonRewards(
             highest_tier=self.highest_tier, data=season_rewards
+        )
+
+    def __repr__(self) -> str:
+        platform_repr = f"{self.platform.__class__.__name__}.{self.platform._name_}"
+        return (
+            f"<{self.__class__.__name__}"
+            f" platform={platform_repr}"
+            f" player_id={self.player_id!r}"
+            f">"
         )
 
     def __eq__(self, other: Any) -> bool:
