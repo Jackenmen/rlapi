@@ -5,8 +5,8 @@ on:
   - pull_request
 
 jobs:
-  black:
-    name: Black style check
+  style:
+    name: Style check (black and isort)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,8 +25,12 @@ jobs:
         run: |
           python -m pip install -U .[style]
       - name: Style check
+        # running `isort --check` second time to make sure it doesn't fight with black
         run: |
-          black --check --diff ./
+          isort ./
+          black ./
+          isort --check ./
+          git diff --exit-code
   docs:
     name: Build docs
     runs-on: ubuntu-latest

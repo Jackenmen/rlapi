@@ -15,3 +15,20 @@ exclude = '''
     | stubs/lxml
   )/
 '''
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+skip = [
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "stubs/lxml",
+]
