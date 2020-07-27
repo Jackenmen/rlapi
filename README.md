@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.com/jack1142/rlapi.svg)](https://travis-ci.com/jack1142/rlapi)
 [![Documentation Status](https://readthedocs.org/projects/rlapi/badge/)](https://rlapi.readthedocs.io/en/latest/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 > **Rocket League API is currently in closed beta and Psyonix doesn't give out keys easily.**
@@ -53,7 +53,7 @@ Please take a look at our [contributing guidelines](https://github.com/jack1142/
 
 ## License
 
-Distributed under the MIT license. See ``LICENSE`` for more information.
+Distributed under the Apache License 2.0. See ``LICENSE`` for more information.
 
 This project bundles [lxml-stubs](https://github.com/JelleZijlstra/lxml-stubs) which are distributed on Apache License 2.0
 
