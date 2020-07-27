@@ -61,6 +61,19 @@ class TierEstimates:
         self.tier_down = self._estimate_tier_down()
         self.tier_up = self._estimate_tier_up()
 
+    def __repr__(self) -> str:
+        return (
+            f"<{self.__class__.__name__}"
+            f" for playlist {self.playlist.key};"
+            f" tier={self.tier}"
+            f" division={self.division}"
+            f" tier_down={self.tier_down}"
+            f" div_down={self.div_down}"
+            f" div_up={self.div_up}"
+            f" tier_up={self.tier_up}"
+            f">"
+        )
+
     def _estimate_div_down(self) -> Optional[int]:
         playlist = self.playlist
         if self.tier == 1 and self.division == 0 or self.tier == 0:
