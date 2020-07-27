@@ -24,16 +24,19 @@ import pkgutil
 
 from . import errors as errors  # noqa
 from .client import Client as Client  # noqa
-from .enums import Platform as Platform  # noqa
-from .enums import PlaylistKey as PlaylistKey  # noqa
-from .errors import HTTPException as HTTPException  # noqa
-from .errors import IllegalUsername as IllegalUsername  # noqa
-from .errors import PlayerNotFound as PlayerNotFound  # noqa
-from .errors import RLApiException as RLApiException  # noqa
-from .errors import Unauthorized as Unauthorized  # noqa
-from .player import Player as Player  # noqa
-from .player import Playlist as Playlist  # noqa
-from .player import SeasonRewards as SeasonRewards  # noqa
+from .enums import Platform as Platform, PlaylistKey as PlaylistKey  # noqa
+from .errors import (  # noqa
+    HTTPException as HTTPException,
+    IllegalUsername as IllegalUsername,
+    PlayerNotFound as PlayerNotFound,
+    RLApiException as RLApiException,
+    Unauthorized as Unauthorized,
+)
+from .player import (  # noqa
+    Player as Player,
+    Playlist as Playlist,
+    SeasonRewards as SeasonRewards,
+)
 
 pkg = pkgutil.get_data(__package__, "VERSION")
 __version__ = pkg.decode("ascii").strip() if pkg is not None else ""
