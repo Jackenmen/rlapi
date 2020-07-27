@@ -218,6 +218,29 @@ class Player:
             highest_tier=self.highest_tier, data=season_rewards
         )
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+
+        # I could just check `player_id`, but it's user provided
+        # so two objects could potentially be equal even if `player_id` isn't
+
+        if self.platform is not other.platform:
+            return False
+
+        # both object have `user_id` so we can just compare those
+        if None not in (self.user_id, other.user_id):
+            return self.user_id == other.user_id
+
+        # it's rather unlikely that only one `user_id` is None if platforms are equal,
+        # but checking equality of both `user_id` and `user_name` just in case
+        return (self.user_id, self.user_name) == (other.user_id, other.user_name)
+
+    def __hash__(self) -> int:
+        if self.user_id is not None:
+            return hash((self.platform, "by_user_id", self.user_id))
+        return hash((self.platform, "by_user_name", self.user_name))
+
     def get_playlist(self, playlist_key: PlaylistKey) -> Optional[Playlist]:
         """
         Get playlist for the player.
