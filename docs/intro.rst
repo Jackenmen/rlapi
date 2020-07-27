@@ -38,7 +38,5 @@ Here's simple example showing how you can get player stats with this library:
 
     loop = asyncio.get_event_loop()
 
-    client = rlapi.Client('token')
-    players = loop.run_until_complete(
-        client.get_player('kuxir97', rlapi.Platform.steam)
-    )
+    client = rlapi.Client("token")
+    players = loop.run_until_complete(client.get_player("kuxir97", None))

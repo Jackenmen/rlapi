@@ -38,10 +38,8 @@ import rlapi
 
 loop = asyncio.get_event_loop()
 
-client = rlapi.Client('token')
-players = loop.run_until_complete(
-    client.get_player('kuxir97', rlapi.Platform.steam)
-)
+client = rlapi.Client("token")
+players = loop.run_until_complete(client.get_player("kuxir97", None))
 ```
 
 ## Documentation
