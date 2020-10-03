@@ -39,7 +39,10 @@ RANKS = (
     "Champion I",
     "Champion II",
     "Champion III",
-    "Grand Champion",
+    "Grand Champion I",
+    "Grand Champion II",
+    "Grand Champion III",
+    "Supersonic Legend",
 )
 DIVISIONS = ("I", "II", "III", "IV")
 
@@ -125,7 +128,12 @@ class Playlist:
         self.sigma: float = data.get("sigma") or 8.333
         self.win_streak: int = data.get("win_streak") or 0
         self.matches_played: int = data.get("matches_played") or 0
-        self.tier_max: int = data.get("tier_max", 19)
+        self.tier_max = 22
+        # This is how it should be done, but API returns old max value right now
+        # While I could just have what API returns here,
+        # some parts of library depend on this being the proper value
+        #
+        # self.tier_max: int = data.get("tier_max", 22)
         self.breakdown = breakdown if breakdown is not None else {}
         self.tier_estimates = TierEstimates(self)
 
