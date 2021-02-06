@@ -42,6 +42,15 @@ RANKS = (
     "Grand Champion",
 )
 DIVISIONS = ("I", "II", "III", "IV")
+PLAYLISTS_WITH_SEASON_REWARDS = (
+    PlaylistKey.solo_duel,
+    PlaylistKey.doubles,
+    PlaylistKey.standard,
+    PlaylistKey.hoops,
+    PlaylistKey.rumble,
+    PlaylistKey.dropshot,
+    PlaylistKey.snow_day,
+)
 
 __all__ = ("Playlist", "SeasonRewards", "Player")
 
@@ -210,6 +219,7 @@ class Player:
         Tier breakdown.
     highest_tier: int
         Highest tier of the player.
+        Doesn't include the playlists that don't count towards season rewards.
     season_rewards: `SeasonRewards`
         Season rewards info.
 
@@ -245,7 +255,12 @@ class Player:
         self._prepare_playlists(player_skills)
 
         self.highest_tier = max(
-            (playlist.tier for playlist in self.playlists.values()), default=0
+            (
+                playlist.tier
+                for playlist in self.playlists.values()
+                if playlist.key in PLAYLISTS_WITH_SEASON_REWARDS
+            ),
+            default=0,
         )
 
         season_rewards = data.get("season_rewards", {})

@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 __all__ = ("PlaylistKey", "Platform")
 
 
-class PlaylistKey(Enum):
+class PlaylistKey(IntEnum):
     """Represents playlist's key.
 
     .. container:: operations
 
         ``str(x)``
-            Returns playlist's friendly name, e.g. "Solo Standard"
+            Returns playlist's friendly name, e.g. "Solo Duel"
     """
 
     #: The Solo Duel playlist.
