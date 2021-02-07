@@ -14,13 +14,9 @@
 
 import logging
 from collections import defaultdict
-from typing import Dict, List
-
-from lxml import etree
+from typing import Any, Dict, List
 
 from rlapi import Client, PlaylistKey, errors
-from rlapi.player import DIVISIONS, RANKS
-from rlapi.utils import stringify
 
 log = logging.getLogger(__name__)
 
@@ -56,49 +52,29 @@ async def get_tier_breakdown(
     for playlist_key in PlaylistKey:
         playlist_id = playlist_key.value
         try:
-            text = await _get_playlist_breakdown(client, playlist_id)
+            result = await _get_playlist_breakdown(client, playlist_id)
         except errors.HTTPException:
             log.error("Downloading tier breakdown did not succeed.")
             raise
-        tiers = etree.HTML(text).findall(
-            './body/div[@class="container content-container"]'
-            '/div/div/div[@class="row"]/div[@class="col-md-4"]'
-        )
 
-        for tier_div in tiers:
-            tier_name = stringify(tier_div.find("./h3"))
-            try:
-                tier_id = RANKS.index(tier_name)
-            except ValueError:
-                continue
+        data = result["data"]["data"]
 
-            for division_div in tier_div.iterfind(
-                './div/div[@class="division-label"]/..'
-            ):
-                division_name = stringify(
-                    division_div.find('./div[@class="division-label"]')
-                )
-                if not division_name.startswith("Division "):
-                    continue
-                try:
-                    division_id = DIVISIONS.index(division_name[9:])
-                except ValueError:
-                    continue
+        for breakdown in data:
+            tier_id = breakdown["tier"]
+            playlist_id = breakdown["playlist"]
+            division_id = breakdown["division"]
+            begin = breakdown["minMMR"]
+            end = breakdown["maxMMR"]
 
-                division_breakdown = division_div.iterfind(
-                    './div[@class="division"]/div'
-                )
-                begin = int(next(division_breakdown).text)
-                next(division_breakdown)
-                end = int(next(division_breakdown).text)
-                tier_breakdown[playlist_id][tier_id][division_id] = [begin, end]
+            tier_breakdown[playlist_id][tier_id][division_id] = [begin, end]
+
         tier_breakdown[playlist_id].pop(0, None)
 
     return tier_breakdown
 
 
-async def _get_playlist_breakdown(client: Client, playlist_id: int) -> str:
-    url = f"https://rocketleague.tracker.network/distribution/{playlist_id}"
+async def _get_playlist_breakdown(client: Client, playlist_id: int) -> Dict[str, Any]:
+    url = f"https://api.tracker.gg/api/v1/rocket-league/distribution/{playlist_id}"
     # Tracker Network request returns html code
-    text: str = await client._request(url)
+    text: Dict[str, Any] = await client._request(url)
     return text
