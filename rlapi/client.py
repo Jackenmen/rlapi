@@ -42,8 +42,9 @@ _PLATFORM_PATTERNS = {
         """,
         re.VERBOSE,
     ),
-    Platform.ps4: re.compile("[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
-    Platform.xboxone: re.compile("[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
+    Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
+    Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
+    Platform.epic: re.compile(r".{3,16}"),
 }
 
 
