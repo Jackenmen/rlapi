@@ -30,8 +30,6 @@ class PlaylistKey(Enum):
     solo_duel = 10
     #: The Doubles playlist.
     doubles = 11
-    #: The Solo Standard playlist.
-    solo_standard = 12
     #: The Standard playlist.
     standard = 13
     #: The Hoops playlist.
@@ -42,6 +40,9 @@ class PlaylistKey(Enum):
     dropshot = 29
     #: The Snow Day playlist.
     snow_day = 30
+    #: The Tournaments "playlist".
+    #: This is used to determine the rank for automatic tournaments.
+    tournaments = 34
 
     def __str__(self) -> str:
         # pylint: disable=no-member
