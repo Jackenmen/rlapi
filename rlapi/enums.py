@@ -12,26 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 __all__ = ("PlaylistKey", "Platform")
 
 
-class PlaylistKey(Enum):
+class PlaylistKey(IntEnum):
     """Represents playlist's key.
 
     .. container:: operations
 
         ``str(x)``
-            Returns playlist's friendly name, e.g. "Solo Standard"
+            Returns playlist's friendly name, e.g. "Solo Duel"
     """
 
     #: The Solo Duel playlist.
     solo_duel = 10
     #: The Doubles playlist.
     doubles = 11
-    #: The Solo Standard playlist.
-    solo_standard = 12
     #: The Standard playlist.
     standard = 13
     #: The Hoops playlist.
@@ -42,6 +40,9 @@ class PlaylistKey(Enum):
     dropshot = 29
     #: The Snow Day playlist.
     snow_day = 30
+    #: The Tournaments "playlist".
+    #: This is used to determine the rank for automatic tournaments.
+    tournaments = 34
 
     def __str__(self) -> str:
         # pylint: disable=no-member
