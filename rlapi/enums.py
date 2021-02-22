@@ -64,6 +64,8 @@ class Platform(Enum):
     ps4 = "Playstation 4"
     #: The Xbox One platform.
     xboxone = "Xbox One"
+    #: The Epic Games platform.
+    epic = "Epic Games"
 
     def __str__(self) -> str:
         return self.value
