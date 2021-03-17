@@ -55,10 +55,7 @@ class HTTPException(RLApiException):
     ) -> None:
         self.response = response
         self.status = response.status
-        if isinstance(data, dict):
-            self.message = data.get("detail", data)
-        else:
-            self.message = data
+        self.message = data.get("detail", data) if isinstance(data, dict) else data
         super().__init__(
             f"{self.response.reason} (status code: {self.status}): {self.message}"
         )

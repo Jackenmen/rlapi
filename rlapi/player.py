@@ -123,17 +123,10 @@ class Playlist:
 
         mu: Optional[float] = data.get("mu")
         self.mu: float
-        if mu is not None:
-            self.mu = mu
-        else:
-            self.mu = 25
+        self.mu = mu if mu is not None else 25
         skill: Optional[int] = data.get("skill")
         self.skill: int
-        if skill is not None:
-            self.skill = skill
-        else:
-            self.skill = int(self.mu * 20 + 100)
-
+        self.skill = skill if skill is not None else int(self.mu * 20 + 100)
         self.sigma: float = data.get("sigma") or 8.333
         self.win_streak: int = data.get("win_streak") or 0
         self.matches_played: int = data.get("matches_played") or 0
