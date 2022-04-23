@@ -15,6 +15,7 @@
 import asyncio
 import logging
 import re
+import warnings
 from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union, cast
 
 import aiohttp
@@ -66,7 +67,7 @@ class Client:
     def __init__(
         self, token: str, *, tier_breakdown: Optional[TierBreakdownType] = None
     ):
-        self._session = aiohttp.client.ClientSession()
+        self._session = aiohttp.ClientSession()
         self._token = token
         self._xml_parser = etree.XMLParser(resolve_entities=False)
         self.tier_breakdown: TierBreakdownType
@@ -77,10 +78,31 @@ class Client:
         else:
             self.tier_breakdown = tier_breakdown
 
+    async def close(self) -> None:
+        """
+        Close underlying session.
+
+        Release all acquired resources.
+        """
+        await self._session.close()
+
     def destroy(self) -> None:
+        """
+        Detach underlying session.
+
+        The `close()` method should be used instead when possible as
+        this function does not close the session's connector.
+        """
         self._session.detach()
 
-    __del__ = destroy
+    def __del__(self) -> None:
+        if not self._session.closed:
+            warnings.warn(
+                f"Unclosed Rocket League API client {self!r}",
+                ResourceWarning,
+                source=self,
+            )
+            self.destroy()
 
     def change_token(self, token: str) -> None:
         """
