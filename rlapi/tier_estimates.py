@@ -18,7 +18,7 @@ import logging
 from math import ceil
 from typing import TYPE_CHECKING, Optional, Union
 
-from .utils import AlwaysGreaterOrEqual
+from ._utils import AlwaysGreaterOrEqual
 
 if TYPE_CHECKING:
     from .player import Playlist
