@@ -33,10 +33,13 @@ Here's simple example showing how you can get player stats with this library:
 .. code-block:: python3
 
     import asyncio
+
     import rlapi
 
 
-    loop = asyncio.get_event_loop()
+    async def main():
+        client = rlapi.Client(client_id="client id", client_secret="client secret")
+        players = await client.get_player("kuxir97", None)
 
-    client = rlapi.Client("token")
-    players = loop.run_until_complete(client.get_player("kuxir97", None))
+
+    asyncio.run(main())

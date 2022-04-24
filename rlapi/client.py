@@ -15,6 +15,7 @@
 import asyncio
 import logging
 import re
+import time
 import warnings
 from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union, cast
 
@@ -22,7 +23,7 @@ import aiohttp
 from lxml import etree
 
 from . import errors
-from ._utils import json_or_text
+from ._utils import TokenInfo, json_or_text
 from .enums import Platform
 from .player import Player
 from .typedefs import TierBreakdownType
@@ -45,7 +46,9 @@ _PLATFORM_PATTERNS = {
     ),
     Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
     Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
-    Platform.epic: re.compile(r".{3,16}"),
+    # Display Name pattern for Epic platform, used to be relevant:
+    # Platform.epic: re.compile(r".{3,16}"),
+    Platform.epic: re.compile(r"[0-9a-f]{32}"),
     Platform.switch: re.compile(
         r"""
         [a-zA-Z0-9]  # first character can't be punctuation
@@ -61,14 +64,21 @@ _PLATFORM_PATTERNS = {
 
 
 class Client:
-    RLAPI_BASE = "https://api.rocketleague.com/api/v1"
+    RLAPI_BASE = "https://api.rlpp.psynet.gg/public/v1"
     STEAM_BASE = "https://steamcommunity.com"
+    EPIC_OAUTH_URL = "https://api.epicgames.dev/epic/oauth/v1/token"
 
     def __init__(
-        self, token: str, *, tier_breakdown: Optional[TierBreakdownType] = None
+        self,
+        *,
+        client_id: str,
+        client_secret: str,
+        tier_breakdown: Optional[TierBreakdownType] = None,
     ):
         self._session = aiohttp.ClientSession()
-        self._token = token
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._token_info: Optional[TokenInfo] = None
         self._xml_parser = etree.XMLParser(resolve_entities=False)
         self.tier_breakdown: TierBreakdownType
         if tier_breakdown is None:
@@ -104,23 +114,61 @@ class Client:
             )
             self.destroy()
 
-    def change_token(self, token: str) -> None:
+    def update_client_credentials(self, *, client_id: str, client_secret: str) -> None:
         """
-        Change client's token.
+        Update client ID and client secret.
 
         Parameters
         ----------
-        token: str
-            New token
+        client_id: str
+            New client ID.
+        client_secret: str
+            New client secret.
 
         """
-        self._token = token
+        self._client_id = client_id
+        self._client_secret = client_secret
 
-    async def _rlapi_request(self, endpoint: str) -> List[Dict[str, Any]]:
+    async def _get_access_token(self, *, force_refresh: bool = False) -> str:
+        if (
+            self._token_info is not None
+            and self._token_info.expires_at - time.time() > 60
+            and not force_refresh
+        ):
+            return self._token_info.access_token
+
+        self._token_info = await self._request_token()
+        return self._token_info.access_token
+
+    async def _request_token(self) -> TokenInfo:
+        expires_at = int(time.time())
+        async with self._session.post(
+            self.EPIC_OAUTH_URL,
+            data={"grant_type": "client_credentials"},
+            auth=aiohttp.BasicAuth(self._client_id, self._client_secret),
+        ) as resp:
+            data = await json_or_text(resp)
+            if resp.status != 200:
+                raise errors.HTTPException(resp, data)
+
+        assert data["token_type"] == "bearer"
+        expires_at += data["expires_in"]
+        return TokenInfo(data["access_token"], expires_at)
+
+    async def _rlapi_request(
+        self, endpoint: str, *, force_refresh_token: bool = False
+    ) -> Dict[str, Any]:
         url = self.RLAPI_BASE + endpoint
-        headers = {"Authorization": f"Token {self._token}"}
-        # RL API returns JSON list on success
-        data: List[Dict[str, Any]] = await self._request(url, headers)
+        token = await self._get_access_token(force_refresh=force_refresh_token)
+        headers = {"Authorization": f"Bearer {token}"}
+        # RL API returns JSON object on success
+        data: Dict[str, Any]
+        try:
+            data = await self._request(url, headers)
+        except errors.Unauthorized:
+            if force_refresh_token:
+                raise
+            data = await self._rlapi_request(endpoint, force_refresh_token=True)
         return data
 
     async def _request(
@@ -171,14 +219,14 @@ class Client:
             The player could not be found.
 
         """
-        endpoint = f"/{platform.name}/playerskills/{player_id}/"
+        endpoint = f"/player/skill/{platform.value}/{player_id}"
         try:
-            player = await self._rlapi_request(endpoint)
+            player_data = await self._rlapi_request(endpoint)
         except errors.HTTPException as e:
-            if e.status == 400 and "not found" in e.message:
+            if e.status == 404:
                 raise errors.PlayerNotFound(
                     "Player with provided ID could not be "
-                    f"found on platform {platform.name}"
+                    f"found on platform {platform.value}"
                 )
             raise
 
@@ -186,7 +234,7 @@ class Client:
             player_id=player_id,
             platform=platform,
             tier_breakdown=self.tier_breakdown,
-            data=player[0],
+            data=player_data,
         )
 
     async def get_player(

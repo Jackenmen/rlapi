@@ -184,12 +184,8 @@ class SeasonRewards:
     __slots__ = ("level", "wins", "can_advance")
 
     def __init__(self, *, highest_tier: int = 0, data: Dict[str, Any]) -> None:
-        self.level: int = data.get("level", 0)
-        if self.level is None:
-            self.level = 0
-        self.wins: int = data.get("wins", 0)
-        if self.wins is None:
-            self.wins = 0
+        self.level: int = data.get("level") or 0
+        self.wins: int = data.get("wins") or 0
         self.can_advance: bool
         if self.level == 0 or self.level * 3 < highest_tier:
             self.can_advance = True
@@ -217,9 +213,11 @@ class Player:
     player_id: str
         ``player_id`` as passed to `Client.get_player()`.
     user_id: str, optional
-        Player's user ID, ``None`` for non-Steam players.
-    user_name: str
-        Player's username (display name)
+        Player's user ID.
+        Only present for Steam and Epic Games players.
+    user_name: str, optional
+        Player's username (display name).
+        Only present for Playstation 4, Xbox One, and Nintendo Switch players.
     playlists: dict
         Dictionary mapping `PlaylistKey` with `Playlist`.
     tier_breakdown: dict
@@ -253,8 +251,8 @@ class Player:
     ) -> None:
         self.platform = platform
         self.player_id = player_id
-        self.user_id: Optional[str] = data.get("user_id")
-        self.user_name: str = data["user_name"]
+        self.user_id: Optional[str] = data.get("player_id")
+        self.user_name: Optional[str] = data.get("player_name")
 
         self.playlists: Dict[Union[PlaylistKey, int], Playlist] = {}
         player_skills = data.get("player_skills", [])

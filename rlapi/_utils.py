@@ -14,7 +14,7 @@
 
 import json
 import sys
-from typing import Any
+from typing import Any, NamedTuple
 
 import aiohttp
 
@@ -24,9 +24,15 @@ else:
     from typing_extensions import Literal
 
 __all__ = (
+    "TokenInfo",
     "AlwaysGreaterOrEqual",
     "json_or_text",
 )
+
+
+class TokenInfo(NamedTuple):
+    access_token: str
+    expires_at: int
 
 
 class AlwaysGreaterOrEqual:
