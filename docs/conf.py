@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "rlapi"
-copyright = "2018-2020, Jakub Kuczys (jack1142)"
+copyright = f"2018-{time.strftime('%Y')}, Jakub Kuczys (jack1142)"
 author = "Jakub Kuczys (jack1142)"
 
 # The version info for the project you're documenting, acts as replacement for
