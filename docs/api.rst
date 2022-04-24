@@ -35,10 +35,16 @@ Rocket League API Models
 Models are classes that are received from Rocket League API
 and are not meant to be created by the user of the library.
 
-.. automodule:: rlapi.player
+.. autoclass:: rlapi.Player
     :members:
 
-.. automodule:: rlapi.tier_estimates
+.. autoclass:: rlapi.SeasonRewards
+    :members:
+
+.. autoclass:: rlapi.Playlist
+    :members:
+
+.. autoclass:: rlapi.tier_estimates.TierEstimates
     :members:
 
 Exceptions
