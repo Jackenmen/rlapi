@@ -50,7 +50,7 @@ class PlaylistKey(IntEnum):
 
 
 class Platform(Enum):
-    """Represents platform name.
+    """Represents player's platform.
 
     .. container:: operations
 
@@ -58,17 +58,25 @@ class Platform(Enum):
             Returns platform's friendly name, e.g. "Xbox One"
     """
 
-    value: str
     #: The Steam platform.
     steam = "Steam"
     #: The Playstation 4 platform.
-    ps4 = "Playstation 4"
+    ps4 = "PS4"
     #: The Xbox One platform.
-    xboxone = "Xbox One"
+    xboxone = "XboxOne"
     #: The Epic Games platform.
-    epic = "Epic Games"
+    epic = "Epic"
     #: The Nintendo Switch platform.
-    switch = "Nintendo Switch"
+    switch = "Switch"
 
     def __str__(self) -> str:
-        return self.value
+        return _PLATFORM_FRIENDLY_NAMES[self]
+
+
+_PLATFORM_FRIENDLY_NAMES = {
+    Platform.steam: "Steam",
+    Platform.ps4: "Playstation 4",
+    Platform.xboxone: "Xbox One",
+    Platform.epic: "Epic Games",
+    Platform.switch: "Nintendo Switch",
+}

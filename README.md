@@ -7,7 +7,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-> **Rocket League API is currently in closed beta and Psyonix doesn't give out keys easily.**
+> **Rocket League API is currently in closed beta and Psyonix doesn't give out access to it easily.**
 >
 > To request API access, you should contact Psyonix by email RLPublicAPI@psyonix.com and hope for positive response.
 
@@ -32,13 +32,16 @@ To install the development version, replace `rlapi` with `git+https://github.com
 You can easily create a client using the class `Client`. Here's simple example showing how you can get player stats with this library:
 ```py
 import asyncio
+
 import rlapi
 
 
-loop = asyncio.get_event_loop()
+async def main():
+    client = rlapi.Client(client_id="client id", client_secret="client secret")
+    players = await client.get_player("kuxir97", None)
 
-client = rlapi.Client("token")
-players = loop.run_until_complete(client.get_player("kuxir97", None))
+
+asyncio.run(main())
 ```
 
 ## Documentation

@@ -13,11 +13,17 @@
 # limitations under the License.
 
 import contextlib
+import sys
 from typing import Any, Dict, List, Optional, Union
 
 from .enums import Platform, PlaylistKey
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
+
+if sys.version_info[:2] >= (3, 8):
+    from typing import Final
+else:
+    from typing_extensions import Final
 
 RANKS = (
     "Unranked",
@@ -86,14 +92,14 @@ class Playlist:
         Win streak on this playlist.
     matches_played: int
         Amount of matches played on this playlist.
-    tier_max: int
-        Maximum tier that can be achieved on this playlist.
     breakdown: dict
         Playlist tier breakdown.
     tier_estimates: `TierEstimates`
         Tier estimates for this playlist.
 
     """
+
+    TIER_MAX: Final[int] = 22
 
     __slots__ = (
         "key",
@@ -104,7 +110,6 @@ class Playlist:
         "sigma",
         "win_streak",
         "matches_played",
-        "tier_max",
         "breakdown",
         "tier_estimates",
     )
@@ -137,18 +142,12 @@ class Playlist:
         self.sigma: float = data.get("sigma") or 8.333
         self.win_streak: int = data.get("win_streak") or 0
         self.matches_played: int = data.get("matches_played") or 0
-        self.tier_max = 22
-        # This is how it should be done, but API returns old max value right now
-        # While I could just have what API returns here,
-        # some parts of library depend on this being the proper value
-        #
-        # self.tier_max: int = data.get("tier_max", 22)
         self.breakdown = breakdown if breakdown is not None else {}
         self.tier_estimates = TierEstimates(self)
 
     def __str__(self) -> str:
         try:
-            if self.tier in {0, self.tier_max}:
+            if self.tier in {0, self.TIER_MAX}:
                 return RANKS[self.tier]
             return f"{RANKS[self.tier]} Div {DIVISIONS[self.division]}"
         except IndexError:
@@ -185,12 +184,8 @@ class SeasonRewards:
     __slots__ = ("level", "wins", "can_advance")
 
     def __init__(self, *, highest_tier: int = 0, data: Dict[str, Any]) -> None:
-        self.level: int = data.get("level", 0)
-        if self.level is None:
-            self.level = 0
-        self.wins: int = data.get("wins", 0)
-        if self.wins is None:
-            self.wins = 0
+        self.level: int = data.get("level") or 0
+        self.wins: int = data.get("wins") or 0
         self.can_advance: bool
         if self.level == 0 or self.level * 3 < highest_tier:
             self.can_advance = True
@@ -218,9 +213,11 @@ class Player:
     player_id: str
         ``player_id`` as passed to `Client.get_player()`.
     user_id: str, optional
-        Player's user ID, ``None`` for non-Steam players.
-    user_name: str
-        Player's username (display name)
+        Player's user ID.
+        Only present for Steam and Epic Games players.
+    user_name: str, optional
+        Player's username (display name).
+        Only present for Playstation 4, Xbox One, and Nintendo Switch players.
     playlists: dict
         Dictionary mapping `PlaylistKey` with `Playlist`.
     tier_breakdown: dict
@@ -254,8 +251,8 @@ class Player:
     ) -> None:
         self.platform = platform
         self.player_id = player_id
-        self.user_id: Optional[str] = data.get("user_id")
-        self.user_name: str = data["user_name"]
+        self.user_id: Optional[str] = data.get("player_id")
+        self.user_name: Optional[str] = data.get("player_name")
 
         self.playlists: Dict[Union[PlaylistKey, int], Playlist] = {}
         player_skills = data.get("player_skills", [])
