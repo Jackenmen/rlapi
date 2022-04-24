@@ -60,7 +60,7 @@ class Platform(Enum):
 
     #: The Steam platform.
     steam = "Steam"
-    #: The Playstation 4 platform.
+    #: The PlayStation 4 platform.
     ps4 = "PS4"
     #: The Xbox One platform.
     xboxone = "XboxOne"
@@ -75,7 +75,7 @@ class Platform(Enum):
 
 _PLATFORM_FRIENDLY_NAMES = {
     Platform.steam: "Steam",
-    Platform.ps4: "Playstation 4",
+    Platform.ps4: "PlayStation 4",
     Platform.xboxone: "Xbox One",
     Platform.epic: "Epic Games",
     Platform.switch: "Nintendo Switch",
