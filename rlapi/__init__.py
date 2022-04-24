@@ -1,4 +1,4 @@
-# Copyright 2018-2020 Jakub Kuczys (https://github.com/jack1142)
+# Copyright 2018-present Jakub Kuczys (https://github.com/jack1142)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 __author__ = "Jakub Kuczys (jack1142)"
 
 __license__ = "Apache License 2.0"
-__copyright__ = "Copyright (c) 2018-2020 Jakub Kuczys"
+__copyright__ = "Copyright (c) 2018-present Jakub Kuczys"
 
 import logging
 import pkgutil
