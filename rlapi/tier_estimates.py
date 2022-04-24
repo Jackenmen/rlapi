@@ -34,7 +34,7 @@ class TierEstimates:
 
     Attributes
     ----------
-    playlist: `Playlist`
+    playlist: `rlapi.Playlist`
         Playlist object which these estimates are about.
     tier: int
         Estimated tier on this playlist.

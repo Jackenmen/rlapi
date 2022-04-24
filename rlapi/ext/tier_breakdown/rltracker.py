@@ -34,7 +34,7 @@ async def get_tier_breakdown(
 
     Parameters
     ----------
-    client: `Client`
+    client: `rlapi.Client`
         Client object.
 
     Returns
