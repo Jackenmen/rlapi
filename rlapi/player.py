@@ -217,7 +217,7 @@ class Player:
         Only present for Steam and Epic Games players.
     user_name: str, optional
         Player's username (display name).
-        Only present for Playstation 4, Xbox One, and Nintendo Switch players.
+        Only present for PlayStation 4, Xbox One, and Nintendo Switch players.
     playlists: dict
         Dictionary mapping `PlaylistKey` with `Playlist`.
     tier_breakdown: dict
