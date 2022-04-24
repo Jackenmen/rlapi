@@ -22,10 +22,10 @@ import aiohttp
 from lxml import etree
 
 from . import errors
+from ._utils import json_or_text
 from .enums import Platform
 from .player import Player
 from .typedefs import TierBreakdownType
-from .utils import json_or_text
 
 log = logging.getLogger(__name__)
 

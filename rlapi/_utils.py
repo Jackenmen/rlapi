@@ -23,7 +23,10 @@ if sys.version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Literal
 
-__all__ = ("json_or_text",)
+__all__ = (
+    "AlwaysGreaterOrEqual",
+    "json_or_text",
+)
 
 
 class AlwaysGreaterOrEqual:
