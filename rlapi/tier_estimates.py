@@ -104,7 +104,7 @@ class TierEstimates:
 
     def _estimate_div_up(self) -> Optional[int]:
         playlist = self.playlist
-        if self.tier == playlist.tier_max or self.tier == 0:
+        if self.tier == playlist.TIER_MAX or self.tier == 0:
             return None
         try:
             divisions = playlist.breakdown[self.tier]
@@ -136,7 +136,7 @@ class TierEstimates:
 
     def _estimate_tier_up(self) -> Optional[int]:
         playlist = self.playlist
-        if self.tier in {0, playlist.tier_max}:
+        if self.tier in {0, playlist.TIER_MAX}:
             return None
         try:
             divisions = playlist.breakdown[self.tier]
@@ -180,8 +180,8 @@ class TierEstimates:
         elif lowest_diff_division == 4:
             self.tier = lowest_diff_tier + 1
             self.division = 0
-            if self.tier > playlist.tier_max:
-                self.tier = playlist.tier_max
+            if self.tier > playlist.TIER_MAX:
+                self.tier = playlist.TIER_MAX
         else:
             self.tier = lowest_diff_tier
             self.division = lowest_diff_division
