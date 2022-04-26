@@ -215,9 +215,8 @@ class Player:
     user_id: str, optional
         Player's user ID.
         Only present for Steam and Epic Games players.
-    user_name: str, optional
+    user_name: str
         Player's username (display name).
-        Only present for PlayStation 4, Xbox One, and Nintendo Switch players.
     playlists: dict
         Dictionary mapping `PlaylistKey` with `Playlist`.
     tier_breakdown: dict
@@ -252,7 +251,7 @@ class Player:
         self.platform = platform
         self.player_id = player_id
         self.user_id: Optional[str] = data.get("player_id")
-        self.user_name: Optional[str] = data.get("player_name")
+        self.user_name: str = data["player_name"]
 
         self.playlists: Dict[Union[PlaylistKey, int], Playlist] = {}
         player_skills = data.get("player_skills", [])
