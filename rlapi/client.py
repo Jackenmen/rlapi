@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import asyncio
+import itertools
 import logging
 import re
 import time
@@ -23,7 +24,7 @@ import aiohttp
 from lxml import etree
 
 from . import errors
-from ._utils import TokenInfo, json_or_text
+from ._utils import TokenInfo, as_chunks, json_or_text
 from .enums import Platform
 from .player import Player
 from .typedefs import TierBreakdownType
@@ -46,9 +47,7 @@ _PLATFORM_PATTERNS = {
     ),
     Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
     Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
-    # Display Name pattern for Epic platform, used to be relevant:
-    # Platform.epic: re.compile(r".{3,16}"),
-    Platform.epic: re.compile(r"[0-9a-f]{32}"),
+    Platform.epic: re.compile(r"[0-9a-f]{32}|.{3,16}"),
     Platform.switch: re.compile(
         r"""
         [a-zA-Z0-9]  # first character can't be punctuation
@@ -67,6 +66,7 @@ class Client:
     RLAPI_BASE = "https://api.rlpp.psynet.gg/public/v1"
     STEAM_BASE = "https://steamcommunity.com"
     EPIC_OAUTH_URL = "https://api.epicgames.dev/epic/oauth/v1/token"
+    SEARCH_QUERY_LIMIT = 10
 
     def __init__(
         self,
@@ -156,7 +156,11 @@ class Client:
         return TokenInfo(data["access_token"], expires_at)
 
     async def _rlapi_request(
-        self, endpoint: str, *, force_refresh_token: bool = False
+        self,
+        endpoint: str,
+        *,
+        params: Optional[Dict[str, str]] = None,
+        force_refresh_token: bool = False,
     ) -> Dict[str, Any]:
         url = self.RLAPI_BASE + endpoint
         token = await self._get_access_token(force_refresh=force_refresh_token)
@@ -164,19 +168,26 @@ class Client:
         # RL API returns JSON object on success
         data: Dict[str, Any]
         try:
-            data = await self._request(url, headers)
+            data = await self._request(url, headers, params=params)
         except errors.Unauthorized:
             if force_refresh_token:
                 raise
-            data = await self._rlapi_request(endpoint, force_refresh_token=True)
+            data = await self._rlapi_request(
+                endpoint, params=params, force_refresh_token=True
+            )
         return data
 
     async def _request(
-        self, url: str, headers: Optional[aiohttp.typedefs.LooseHeaders] = None
+        self,
+        url: str,
+        headers: Optional[aiohttp.typedefs.LooseHeaders] = None,
+        params: Optional[Dict[str, str]] = None,
     ) -> Any:
         for tries in range(5):
-            async with self._session.get(url, headers=headers) as resp:
+            async with self._session.get(url, headers=headers, params=params) as resp:
                 data = await json_or_text(resp)
+                if "X-Search-Query-Limit" in resp.headers:
+                    self.SEARCH_QUERY_LIMIT = int(resp.headers["X-Search-Query-Limit"])
                 if resp.status == 200:
                     return data
 
@@ -195,7 +206,14 @@ class Client:
         # still failed after 5 tries
         raise errors.HTTPException(resp, data)
 
-    async def _get_stats(self, player_id: str, platform: Platform) -> Player:
+    async def _get_stats(
+        self,
+        platform: Platform,
+        *,
+        ids: Optional[Iterable[str]] = None,
+        names: Optional[Iterable[str]] = None,
+        limit_reached: bool = False,
+    ) -> Player:
         """
         Get player skills for player ID in selected platform.
 
@@ -219,16 +237,54 @@ class Client:
             The player could not be found.
 
         """
-        endpoint = f"/player/skill/{platform.value}/{player_id}"
-        try:
-            player_data = await self._rlapi_request(endpoint)
-        except errors.HTTPException as e:
-            if e.status == 404:
-                raise errors.PlayerNotFound(
-                    "Player with provided ID could not be "
-                    f"found on platform {platform.value}"
-                )
-            raise
+        endpoint = f"/player/profile"
+        params = {"platform": platform.value}
+
+        def gen(ids, names):
+            id_list = []
+            params = {"id[]": id_list}
+            count = 0
+
+            for id_ in ids:
+                if count > self.SEARCH_QUERY_LIMIT:
+                    id_list = []
+                    params = {"id[]": id_list}
+
+                id_list.append(id_)
+                count += 1
+
+            params["name[]"] = name_list = []
+            for name_ in names:
+                if count > self.SEARCH_QUERY_LIMIT:
+                    yield params
+                    name_list = []
+                    params = {"name[]": name_list}
+
+                name_list.append(name_)
+                count += 1
+
+            if id_list or name_list:
+                yield params
+
+        ids = iter(ids)
+        names = iter(names)
+        for params in gen(ids, names):
+            try:
+                player_data = await self._rlapi_request(endpoint, params=params)
+            except errors.HTTPException as e:
+                if e.status != 400:
+                    raise
+                if limit_reached:
+                    raise
+                headers = e.response.headers
+                if headers["X-Search-Query-Limit"] < headers["X-Search-Query-Count"]:
+                    return await self._get_stats(
+                        platform,
+                        ids=itertools.chain(params.get("id[]", []), ids),
+                        names=itertools.chain(params.get("name[]", []), names),
+                        limit_reached=True,
+                    )
+                raise
 
         return Player(
             player_id=player_id,
@@ -279,6 +335,15 @@ class Client:
             )
 
         return tuple(players)
+
+    async def get_players(
+        self,
+        platform: Platform,
+        *,
+        ids: Optional[Iterable[str]] = None,
+        names: Optional[Iterable[str]] = None,
+    ) -> List[Player]:
+
 
     async def _find_profile(self, player_id: str, platform: Platform) -> Set[Player]:
         pattern = _PLATFORM_PATTERNS[platform]

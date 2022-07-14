@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
 import json
 import sys
-from typing import Any, NamedTuple
+from typing import Any, Iterable, NamedTuple, Tuple, TypeVar
 
 import aiohttp
 
@@ -28,6 +29,8 @@ __all__ = (
     "AlwaysGreaterOrEqual",
     "json_or_text",
 )
+
+T = TypeVar("T")
 
 
 class TokenInfo(NamedTuple):
@@ -60,3 +63,12 @@ async def json_or_text(resp: aiohttp.ClientResponse) -> Any:
     if "application/json" in resp.headers[aiohttp.hdrs.CONTENT_TYPE]:
         return json.loads(text)
     return text
+
+
+def as_chunks(iterable: Iterable[T], max_size: int) -> Tuple[T, ...]:
+    it = iter(iterable)
+    while True:
+        chunk = tuple(itertools.islice(it, max_size))
+        if not chunk:
+            return
+        yield chunk
