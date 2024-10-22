@@ -1,7 +1,7 @@
 # rlapi
 > Async ready API wrapper for Rocket League API written in Python.
 
-[![Sponsor on GitHub](https://img.shields.io/github/sponsors/jack1142?logo=github)](https://github.com/sponsors/jack1142)
+[![Sponsor on GitHub](https://img.shields.io/github/sponsors/Jackenmen?logo=github)](https://github.com/sponsors/Jackenmen)
 [![Documentation Status](https://readthedocs.org/projects/rlapi/badge/)](https://rlapi.readthedocs.io/en/latest/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -25,7 +25,7 @@ python3.8 -m pip install -U rlapi
 py -3.8 -m pip install -U rlapi
 ```
 
-To install the development version, replace `rlapi` with `git+https://github.com/jack1142/rlapi`
+To install the development version, replace `rlapi` with `git+https://github.com/Jackenmen/rlapi`
 
 ## Usage example
 
@@ -50,7 +50,7 @@ Read [rlapi's documentation](https://rlapi.readthedocs.io/en/latest/).
 
 ## Contributing
 
-Please take a look at our [contributing guidelines](https://github.com/jack1142/rlapi/blob/main/.github/CONTRIBUTING.md) if you're interested in helping!
+Please take a look at our [contributing guidelines](https://github.com/Jackenmen/rlapi/blob/main/.github/CONTRIBUTING.md) if you're interested in helping!
 
 
 ## License
@@ -64,4 +64,4 @@ Contributing guidelines and issue templates are taken from [discord.py project](
 ---
 
 > Jakub Kuczys &nbsp;&middot;&nbsp;
-> GitHub [@jack1142](https://github.com/jack1142)
+> GitHub [@Jackenmen](https://github.com/Jackenmen)

@@ -1,4 +1,4 @@
-# Copyright 2018-present Jakub Kuczys (https://github.com/jack1142)
+# Copyright 2018-present Jakub Kuczys (https://github.com/Jackenmen)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Jakub Kuczys (jack1142)"
+__author__ = "Jakub Kuczys (Jackenmen)"
 
 __license__ = "Apache License 2.0"
 __copyright__ = "Copyright (c) 2018-present Jakub Kuczys"
