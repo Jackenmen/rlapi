@@ -2,7 +2,6 @@
 # This is *far* from complete, and the stubgen-generated ones crash mypy.
 # Any use of `Any` below means I couldn't figure out the type.
 
-import sys
 from typing import (
     Any,
     Dict,
@@ -14,17 +13,13 @@ from typing import (
     Tuple,
     Union,
     Optional,
+    Protocol,
     Sequence,
     Sized,
     SupportsBytes,
     TypeVar,
     overload,
 )
-
-if sys.version_info[:2] >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
 
 
 # dummy for missing stubs

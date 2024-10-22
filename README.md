@@ -13,16 +13,16 @@
 
 ## Installation
 
-**Python 3.7 or higher is required**
+**Python 3.8 or higher is required**
 
 To install the library, you can just run the following command:
 
 ```sh
 # Linux/OS X
-python3.7 -m pip install -U rlapi
+python3.8 -m pip install -U rlapi
 
 # Windows
-py -3.7 -m pip install -U rlapi
+py -3.8 -m pip install -U rlapi
 ```
 
 To install the development version, replace `rlapi` with `git+https://github.com/jack1142/rlapi`
