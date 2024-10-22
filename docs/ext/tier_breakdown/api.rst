@@ -15,3 +15,10 @@ Rocket League Tracker Network
 
 .. automodule:: rlapi.ext.tier_breakdown.trackernetwork
     :members:
+
+
+rlstats.net
+-----------
+
+.. automodule:: rlapi.ext.tier_breakdown.rlstatsnet
+    :members:

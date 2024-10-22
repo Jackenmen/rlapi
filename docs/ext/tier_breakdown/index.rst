@@ -2,9 +2,9 @@
 ================================================================
 
 ``rlapi`` provides option to supply `rlapi.Client` object with tier breakdown,
-but he has to create it manually. This extension makes getting
+but the user has to create it manually. This extension makes generating
 tier breakdown easier by downloading it from bigger providers like
-`rltracker.pro`_ or `rocketleague.tracker.network`_
+`rltracker.pro`_, `rocketleague.tracker.network`_, or `rlstats.net`_.
 
 .. toctree::
     :maxdepth: 2
@@ -13,3 +13,4 @@ tier breakdown easier by downloading it from bigger providers like
 
 .. _rltracker.pro: https://rltracker.pro
 .. _rocketleague.tracker.network: https://rocketleague.tracker.network
+.. _rlstats.net: https://rlstats.net
