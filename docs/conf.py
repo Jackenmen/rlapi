@@ -85,9 +85,6 @@ html_static_path = ["_static"]
 
 # -- Options for linkcheck builder ----------------------------------------
 
-# A list of regular expressions that match URIs that should not be
-# checked when doing a linkcheck build.
-linkcheck_ignore = [r"https://rltracker.pro*"]
 linkcheck_retries = 3
 
 

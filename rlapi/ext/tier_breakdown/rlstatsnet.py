@@ -30,7 +30,7 @@ _TIER_MAX = len(RANKS)
 _DIVISION_MAX = len(DIVISIONS)
 _TIER_IMAGE_PATH_RE = re.compile(r"/images/ranks/s\d+rank(?P<tier_id>\d+)\.png")
 _DIVISION_RANGE_RE = re.compile(
-    r"Division (?P<division>[IV]+)\W+(?P<begin>\d+) to (?P<end>\d+)"
+    r"Division (?P<division>[IV]+)\W+(?P<begin>\d+) +to +(?P<end>-?\d+)"
 )
 
 
@@ -53,7 +53,9 @@ async def get_tier_breakdown(
     Raises
     ------
     HTTPException
-        Downloading tier breakdown did not succeed.
+        Downloading tier breakdown failed.
+    ValueError
+        Parsing downloaded tier breakdown failed.
 
     """
     tier_breakdown: Dict[int, Dict[int, Dict[int, List[int]]]] = defaultdict(
@@ -71,7 +73,7 @@ async def get_tier_breakdown(
     )
 
     for playlist_node in playlist_nodes:
-        data_playlist = playlist_node.attrib['data-playlist']
+        data_playlist = playlist_node.attrib["data-playlist"]
         try:
             playlist_id = PlaylistKey(int(data_playlist)).value
         except ValueError:
@@ -91,16 +93,23 @@ async def get_tier_breakdown(
 
         # rest of the tiers have normal ranges and 4 divisions
         for tier_node in tier_nodes[3:]:
-            match = _TIER_IMAGE_PATH_RE.fullmatch(tier_node.find("img").attrib["src"])
+            img_src = tier_node.find("img").attrib["src"]
+            match = _TIER_IMAGE_PATH_RE.fullmatch(img_src)
             if match is None:
-                raise ValueError("Unexpected tier image path.")
+                raise ValueError(f"Unexpected tier image path: {img_src!r}")
             tier_id = int(match["tier_id"])
 
             for division_node in tier_node.findall("pre"):
                 match = _DIVISION_RANGE_RE.fullmatch(division_node.text)
                 if match is None:
-                    raise ValueError("Unexpected division range text.")
-                division_id = DIVISIONS.index(match["division"])
+                    raise ValueError(
+                        f"Unexpected division range text: {division_node.text!r}"
+                    )
+                try:
+                    division_id = DIVISIONS.index(match["division"])
+                except ValueError:
+                    # found a division in V-VIII range for some strange reason, ignore
+                    continue
                 begin = int(match["begin"])
                 end = int(match["end"])
                 tier_breakdown[playlist_id][tier_id][division_id] = [begin, end]
