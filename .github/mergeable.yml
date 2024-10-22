@@ -18,7 +18,7 @@ mergeable:
           regex: '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|enhance)(?:\((.+)\))?: (.+)$'
           message: >-
             PR title doesn't conform conventional commit standard.
-            Look in [contributing guidelines](https://github.com/jack1142/rlapi/blob/main/.github/CONTRIBUTING.md)
+            Look in [contributing guidelines](https://github.com/Jackenmen/rlapi/blob/main/.github/CONTRIBUTING.md)
             of this project for more information.
     pass:
       - do: checks
@@ -48,7 +48,7 @@ mergeable:
             {{#ifEquals validationSuites.1.status "fail"}}
             This is work in progress. Do not merge yet.
             {{else}}
-            Look in [contributing guidelines](https://github.com/jack1142/rlapi/blob/main/.github/CONTRIBUTING.md) of this project for more information.
+            Look in [contributing guidelines](https://github.com/Jackenmen/rlapi/blob/main/.github/CONTRIBUTING.md) of this project for more information.
             {{/ifEquals}}
             {{/ifEquals}}
   # Suggest shortening PR's title if it exceeds 66 characters limit
