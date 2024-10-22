@@ -13,17 +13,11 @@
 # limitations under the License.
 
 import contextlib
-import sys
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Final, List, Optional, Union
 
 from .enums import Platform, PlaylistKey
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
-
-if sys.version_info[:2] >= (3, 8):
-    from typing import Final
-else:
-    from typing_extensions import Final
 
 RANKS = (
     "Unranked",

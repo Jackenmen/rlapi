@@ -7,7 +7,7 @@ in creating applications using Rocket League API.
 Prerequisites
 -------------
 
-rlapi works with Python 3.7 or higher. Support for earlier versions of Python is not provided.
+rlapi works with Python 3.8 or higher. Support for earlier versions of Python is not provided.
 
 Installing
 ----------
@@ -16,13 +16,13 @@ You can get the library directly from PyPI.
 
 .. code-block:: shell
 
-    python3.7 -m pip install -U rlapi
+    python3.8 -m pip install -U rlapi
 
 If you are using Windows, then the following should be used instead.
 
 .. code-block:: shell
 
-    py -3.7 -m pip install -U rlapi
+    py -3.8 -m pip install -U rlapi
 
 Usage example
 -------------

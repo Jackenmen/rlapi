@@ -13,15 +13,9 @@
 # limitations under the License.
 
 import json
-import sys
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 import aiohttp
-
-if sys.version_info[:2] >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 __all__ = (
     "TokenInfo",
