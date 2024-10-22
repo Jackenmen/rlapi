@@ -306,9 +306,7 @@ class Client:
         player_id = match.group(2)
         search_type = match.group(1)
         if search_type is None:
-            # code unreachable bug for Match[str]
-            # see https://github.com/python/mypy/issues/7363
-            search_types = ["profiles", "id"]  # type: ignore # mypy bug
+            search_types = ["profiles", "id"]
         else:
             search_types = [search_type]
         ids: List[str] = []
