@@ -48,17 +48,7 @@ _PLATFORM_PATTERNS = {
     Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
     Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
     Platform.epic: re.compile(r"[0-9a-f]{32}|.{3,16}"),
-    Platform.switch: re.compile(
-        r"""
-        [a-zA-Z0-9]  # first character can't be punctuation
-        (?:
-            [a-zA-Z0-9]        # non-punctuation character
-            |[_\-.](?![_\-.])  # or punctuation character that isn't repeated in a row
-        ){4,14}
-        [a-zA-Z0-9]  # last character can't be punctuation
-        """,
-        re.VERBOSE,
-    ),
+    Platform.switch: re.compile(r".{1,10}"),
 }
 
 
