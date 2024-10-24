@@ -231,7 +231,6 @@ class Client:
             raise
 
         return Player(
-            player_id=player_id,
             platform=platform,
             tier_breakdown=self.tier_breakdown,
             data=player_data,
