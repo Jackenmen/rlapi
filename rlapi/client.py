@@ -49,17 +49,7 @@ _PLATFORM_PATTERNS = {
     # Display Name pattern for Epic platform, used to be relevant:
     # Platform.epic: re.compile(r".{3,16}"),
     Platform.epic: re.compile(r"[0-9a-f]{32}"),
-    Platform.switch: re.compile(
-        r"""
-        [a-zA-Z0-9]  # first character can't be punctuation
-        (?:
-            [a-zA-Z0-9]        # non-punctuation character
-            |[_\-.](?![_\-.])  # or punctuation character that isn't repeated in a row
-        ){4,14}
-        [a-zA-Z0-9]  # last character can't be punctuation
-        """,
-        re.VERBOSE,
-    ),
+    Platform.switch: re.compile(r".{1,10}"),
 }
 
 
