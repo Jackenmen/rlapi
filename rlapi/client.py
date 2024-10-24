@@ -412,6 +412,56 @@ class Client:
 
         return players
 
+    async def get_players(
+        self,
+        platform: Platform,
+        *,
+        ids: Optional[Iterable[str]] = None,
+        names: Optional[Iterable[str]] = None,
+    ) -> List[Player]:
+        """
+        Get player profiles for given player IDs and names on the selected platform.
+
+        .. note::
+
+            This function will not raise when any of the given IDs/names
+            could not be found and will simply not include them in the results.
+            It isn't possible to easily map the returned players to given names (if any)
+            and thus it's also not easily possible to determine which (if any) names
+            are missing (and whether any identifiers were duplicated in the parameters).
+
+        Parameters
+        ----------
+        platform: Platform
+            Platform to search.
+        ids: str
+            IDs of the players to find.
+            This can be used on all platforms provided that you know the ID
+            but the API only returns it for Steam and Epic and therefore
+            you'll probably be limited to using it on those two platforms.
+        names: str
+            Names of the players to find.
+            This can be used on all platforms and does some kind of equality check
+            on display names, ignoring case-sensitivity and other undocumented things
+            such as some kind of accent-sensitivity. This means that you simply can't
+            lookup some players on non-Steam platforms because the query could sometimes
+            be fulfilled by multiple players.
+
+        Returns
+        -------
+        `list` of `Player`
+            Requested player profiles.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League API failed.
+
+        """
+        if ids is None and names is None:
+            raise TypeError("either ids or names must be specified")
+        return await self._get_profiles(platform, ids=ids, names=names)
+
     async def _find_profile(self, player_id: str, platform: Platform) -> Set[Player]:
         pattern = _PLATFORM_PATTERNS[platform]
         match = pattern.fullmatch(player_id)
