@@ -247,6 +247,54 @@ class SeasonRewards:
         )
 
 
+class PlayerStats:
+    """PlayerStats()
+    Represents player stats (assists, goals, MVPs, etc.).
+
+    Attributes
+    ----------
+    assists: int
+        Number of player's assists.
+    goals: int
+        Number of player's goals.
+    mvps: int
+        Number of player's MVPs.
+    saves: int
+        Number of player's saves.
+    shots: int
+        Number of player's shots.
+    wins: int
+        Number of player's wins.
+    """
+
+    __slots__ = (
+        "assists",
+        "goals",
+        "mvps",
+        "saves",
+        "shots",
+        "wins",
+    )
+
+    def __init__(self, data: List[Dict[str, Any]]) -> None:
+        stats = {stat["stat_type"]: stat["value"] for stat in data}
+        self.assists: int = stats.get("assists", 0)
+        self.goals: int = stats.get("goals", 0)
+        self.mvps: int = stats.get("mvps", 0)
+        self.saves: int = stats.get("saves", 0)
+        self.shots: int = stats.get("shots", 0)
+        self.wins: int = stats.get("wins", 0)
+
+    def __getitem__(self, key: str) -> int:
+        if key not in self.__slots__:
+            raise KeyError(key)
+        return int(getattr(self, key))
+
+    def __repr__(self) -> str:
+        attrs = " ".join(f"{key}={getattr(self, key)}" for key in self.__slots__)
+        return f"<{self.__class__.__name__} {attrs}>"
+
+
 class Player:
     """Player()
     Represents Rocket League Player
@@ -269,6 +317,8 @@ class Player:
         Doesn't include the playlists that don't count towards season rewards.
     season_rewards: `SeasonRewards`
         Season rewards info.
+    stats: `PlayerStats`
+        Player's stats (assists, goals, MVPs, etc.).
 
     """
 
@@ -280,6 +330,7 @@ class Player:
         "tier_breakdown",
         "highest_tier",
         "season_rewards",
+        "stats",
     )
 
     def __init__(
@@ -311,6 +362,9 @@ class Player:
         self.season_rewards = SeasonRewards(
             highest_tier=self.highest_tier, data=season_rewards
         )
+
+        player_stats = data.get("player_stats", [])
+        self.stats = PlayerStats(player_stats)
 
     def __repr__(self) -> str:
         platform_repr = f"{self.platform.__class__.__name__}.{self.platform._name_}"
