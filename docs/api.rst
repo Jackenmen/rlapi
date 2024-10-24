@@ -38,6 +38,9 @@ and are not meant to be created by the user of the library.
 .. autoclass:: rlapi.Player
     :members:
 
+.. autoclass:: rlapi.PlayerStats
+    :members:
+
 .. autoclass:: rlapi.SeasonRewards
     :members:
 

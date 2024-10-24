@@ -32,6 +32,7 @@ from .errors import (  # noqa
 )
 from .player import (  # noqa
     Player as Player,
+    PlayerStats as PlayerStats,
     Playlist as Playlist,
     SeasonRewards as SeasonRewards,
 )
@@ -60,6 +61,7 @@ __all__ = (
     "Unauthorized",
     # player
     "Player",
+    "PlayerStats",
     "Playlist",
     "SeasonRewards",
 )
