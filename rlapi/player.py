@@ -85,7 +85,12 @@ class Playlist:
     win_streak: int
         Win streak on this playlist.
     matches_played: int
-        Amount of matches played on this playlist.
+        Number of matches played on this playlist during the current season.
+    lifetime_matches_played: int
+        Number of matches played on this playlist since player started playing the game.
+    placement_matches_played: int
+        Number of placement matches played on this playlist during the current season.
+        Maxes out at 10.
     breakdown: dict
         Playlist tier breakdown.
     tier_estimates: `TierEstimates`
@@ -104,6 +109,8 @@ class Playlist:
         "sigma",
         "win_streak",
         "matches_played",
+        "lifetime_matches_played",
+        "placement_matches_played",
         "breakdown",
         "tier_estimates",
     )
@@ -136,6 +143,8 @@ class Playlist:
         self.sigma: float = data.get("sigma") or 8.333
         self.win_streak: int = data.get("win_streak") or 0
         self.matches_played: int = data.get("matches_played") or 0
+        self.lifetime_matches_played: int = data.get("lifetime_matches_played") or 0
+        self.placement_matches_played: int = data.get("placement_matches_played") or 0
         self.breakdown = breakdown if breakdown is not None else {}
         self.tier_estimates = TierEstimates(self)
 
