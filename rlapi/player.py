@@ -255,8 +255,6 @@ class Player:
     ----------
     platform: `Platform`
         Player's platform.
-    player_id: str
-        ``player_id`` as passed to `Client.get_player()`.
     user_id: str, optional
         Player's user ID.
         Only present for Steam and Epic Games players.
@@ -276,7 +274,6 @@ class Player:
 
     __slots__ = (
         "platform",
-        "player_id",
         "user_id",
         "user_name",
         "playlists",
@@ -290,11 +287,9 @@ class Player:
         *,
         tier_breakdown: Optional[TierBreakdownType] = None,
         platform: Platform,
-        player_id: str,
         data: Dict[str, Any],
     ) -> None:
         self.platform = platform
-        self.player_id = player_id
         self.user_id: Optional[str] = data.get("player_id")
         self.user_name: str = data["player_name"]
 
@@ -322,16 +317,14 @@ class Player:
         return (
             f"<{self.__class__.__name__}"
             f" platform={platform_repr}"
-            f" player_id={self.player_id!r}"
+            f" user_id={self.user_id!r}"
+            f" user_name={self.user_name!r}"
             f">"
         )
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, self.__class__):
             return False
-
-        # I could just check `player_id`, but it's user provided
-        # so two objects could potentially be equal even if `player_id` isn't
 
         if self.platform is not other.platform:
             return False
