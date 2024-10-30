@@ -45,22 +45,50 @@ log = logging.getLogger(__name__)
 
 __all__ = ("Client",)
 
-# valid username regexes per platform
+# valid regexes per platform represented as tuple of (id_pattern, name_pattern)
 _PLATFORM_PATTERNS = {
-    Platform.steam: re.compile(
-        r"""
-        (?:
-            (?:https?:\/\/(?:www\.)?)?steamcommunity\.com\/
-            (id|profiles)\/         # group 1 - None if input is only a username/id
-        )?
-        ([a-zA-Z0-9_-]{2,32})\/?    # group 2
-        """,
-        re.VERBOSE,
+    Platform.steam: (
+        # Unlike on other platforms, this matches both IDs and names
+        # since usernames and profile URLs get processed to an ID for use with RL API.
+        # Matches profile URL, steamID64, or customURL.
+        re.compile(
+            r"""
+            (?:
+                (?:https?:\/\/(?:www\.)?)?steamcommunity\.com\/
+                (id|profiles)\/         # group 1 - None if input is only a username/id
+            )?
+            ([a-zA-Z0-9_-]{2,32})\/?    # group 2
+            """,
+            re.VERBOSE,
+        ),
+        # never-matching pattern
+        re.compile(r"$^"),
     ),
-    Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
-    Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
-    Platform.epic: re.compile(r"[0-9a-f]{32}|.{3,16}"),
-    Platform.switch: re.compile(r".{1,10}"),
+    Platform.ps4: (
+        # PSN Account ID
+        re.compile(r"\d{19}"),
+        # PSN username (Online ID)
+        re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
+    ),
+    Platform.xboxone: (
+        # Xbox services ID (XUID) in decimal format
+        # (16 digits or 15 digits prefixed with 0)
+        re.compile(r"\d{16}"),
+        # Gamertag
+        re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
+    ),
+    Platform.epic: (
+        # Epic Account ID
+        re.compile(r"[0-9a-f]{32}"),
+        # Epic Display Name (unique but the API ignores some accented characters)
+        re.compile(r".{3,16}"),
+    ),
+    Platform.switch: (
+        # never-matching pattern
+        re.compile(r"$^"),
+        # Nintendo nickname (not unique)
+        re.compile(r".{1,10}"),
+    ),
 }
 
 
@@ -492,22 +520,26 @@ class Client:
         return self._iter_get_profiles(platform, ids=ids, names=names)
 
     async def _find_profile(self, player_id: str, platform: Platform) -> Set[Player]:
-        pattern = _PLATFORM_PATTERNS[platform]
-        match = pattern.fullmatch(player_id)
-        if not match:
-            raise errors.IllegalUsername(
-                f"Provided username doesn't match provided pattern: {pattern}"
-            )
-
         ids: List[str] = []
         names: List[str] = []
-        if platform == Platform.steam:
-            ids = await self._find_steam_ids(match)
-        elif platform == Platform.epic:
-            ids.append(player_id)
+
+        id_pattern, name_pattern = _PLATFORM_PATTERNS[platform]
+        id_match = id_pattern.fullmatch(player_id)
+        if id_match:
+            if platform == Platform.steam:
+                ids = await self._find_steam_ids(id_match)
+            else:
+                ids.append(player_id)
+
+        name_match = name_pattern.fullmatch(player_id)
+        if name_match:
             names.append(player_id)
-        else:
-            names.append(player_id)
+
+        if not ids and not names:
+            raise errors.IllegalUsername(
+                "Provided ID or username doesn't match provided pattern:"
+                f" {id_pattern}|{name_pattern}"
+            )
 
         return set(await self._get_profiles(platform, ids=ids, names=names))
 
