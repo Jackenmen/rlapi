@@ -26,8 +26,8 @@ log = logging.getLogger(__name__)
 
 __all__ = ("get_tier_breakdown",)
 
-_TIER_MAX = len(RANKS)
-_DIVISION_MAX = len(DIVISIONS)
+_TIER_MAX = len(RANKS) - 1
+_DIVISION_MAX = len(DIVISIONS) - 1
 _TIER_IMAGE_PATH_RE = re.compile(r"/images/ranks/s\d+rank(?P<tier_id>\d+)\.png")
 _DIVISION_RANGE_RE = re.compile(
     r"Division (?P<division>[IV]+)\W+(?P<begin>\d+) +to +(?P<end>-?\d+)"
