@@ -36,6 +36,7 @@ from .player import (  # noqa
     RANKS as RANKS,
     SEASON_REWARDS as SEASON_REWARDS,
     Player as Player,
+    PlayerStats as PlayerStats,
     Playlist as Playlist,
     SeasonRewards as SeasonRewards,
 )
@@ -68,6 +69,7 @@ __all__ = (
     "RANKS",
     "SEASON_REWARDS",
     "Player",
+    "PlayerStats",
     "Playlist",
     "SeasonRewards",
 )
