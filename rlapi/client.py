@@ -18,7 +18,19 @@ import logging
 import re
 import time
 import warnings
-from typing import Any, Dict, Iterable, List, Match, Optional, Set, Union, cast
+from typing import (
+    Any,
+    AsyncIterable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Match,
+    Optional,
+    Set,
+    Union,
+    cast,
+)
 
 import aiohttp
 from lxml import etree
@@ -199,7 +211,7 @@ class Client:
 
     def _generate_request_chunks(
         self, platform: Platform, ids: Iterable[str], names: Iterable[str]
-    ) -> Iterable[Dict[str, Any]]:
+    ) -> Iterator[Dict[str, Any]]:
         common_params = {"platform": platform.value}
         count = 0
         id_list: List[str] = []
@@ -234,10 +246,22 @@ class Client:
         self,
         platform: Platform,
         *,
-        ids: Optional[Iterable[str]] = None,
-        names: Optional[Iterable[str]] = None,
-        limit_reached: bool = False,
+        ids: Iterable[str] = (),
+        names: Iterable[str] = (),
     ) -> List[Player]:
+        return [
+            player
+            async for player in self._iter_get_profiles(platform, ids=ids, names=names)
+        ]
+
+    async def _iter_get_profiles(
+        self,
+        platform: Platform,
+        *,
+        ids: Iterable[str] = (),
+        names: Iterable[str] = (),
+        limit_reached: bool = False,
+    ) -> AsyncIterable[Player]:
         """
         Get player profiles for given player IDs and names on the selected platform.
 
@@ -283,11 +307,19 @@ class Client:
 
         """
         endpoint = "/player/profile"
-        players = []
 
-        ids = iter(ids or ())
-        names = iter(names or ())
-        for params in self._generate_request_chunks(platform, ids, names):
+        ids = iter(ids)
+        names = iter(names)
+        chunks_it = self._generate_request_chunks(platform, ids, names)
+
+        try:
+            first = next(chunks_it)
+        except StopIteration:
+            raise TypeError("either ids or names must be specified") from None
+        else:
+            chunks_it = itertools.chain([first], chunks_it)
+
+        for params in chunks_it:
             try:
                 raw_players = await self._rlapi_request(endpoint, params=params)
             except errors.HTTPException as e:
@@ -297,24 +329,23 @@ class Client:
                     raise
                 headers = e.response.headers
                 if headers["X-Search-Query-Limit"] < headers["X-Search-Query-Count"]:
-                    return await self._get_profiles(
+                    async for player in self._iter_get_profiles(
                         platform,
                         ids=itertools.chain(params.get("id[]", []), ids),
                         names=itertools.chain(params.get("name[]", []), names),
                         limit_reached=True,
-                    )
+                    ):
+                        yield player
+                    return
+
                 raise
 
             for player_data in raw_players:
-                players.append(
-                    Player(
-                        platform=platform,
-                        tier_breakdown=self.tier_breakdown,
-                        data=player_data,
-                    )
+                yield Player(
+                    platform=platform,
+                    tier_breakdown=self.tier_breakdown,
+                    data=player_data,
                 )
-
-        return players
 
     async def get_player_by_id(self, platform: Platform, id_: str, /) -> Player:
         """
@@ -412,6 +443,54 @@ class Client:
 
         return players
 
+    def get_players(
+        self,
+        platform: Platform,
+        *,
+        ids: Iterable[str] = (),
+        names: Iterable[str] = (),
+    ) -> AsyncIterable[Player]:
+        """
+        Get player profiles for given player IDs and names on the selected platform.
+
+        .. note::
+
+            This function will not raise when any of the given IDs/names
+            could not be found and will simply not include them in the results.
+            It isn't possible to easily map the returned players to given names (if any)
+            and thus it's also not easily possible to determine which (if any) names
+            are missing (and whether any identifiers were duplicated in the parameters).
+
+        Parameters
+        ----------
+        platform: Platform
+            Platform to search.
+        ids: str
+            IDs of the players to find.
+            This can be used on all platforms provided that you know the ID
+            but the API only returns it for Steam and Epic and therefore
+            you'll probably be limited to using it on those two platforms.
+        names: str
+            Names of the players to find.
+            This can be used on all platforms and does some kind of equality check
+            on display names, ignoring case-sensitivity and other undocumented things
+            such as some kind of accent-sensitivity. This means that you simply can't
+            lookup some players on non-Steam platforms because the query could sometimes
+            be fulfilled by multiple players.
+
+        Returns
+        -------
+        `list` of `Player`
+            Requested player profiles.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League API failed.
+
+        """
+        return self._iter_get_profiles(platform, ids=ids, names=names)
+
     async def _find_profile(self, player_id: str, platform: Platform) -> Set[Player]:
         pattern = _PLATFORM_PATTERNS[platform]
         match = pattern.fullmatch(player_id)
@@ -420,15 +499,15 @@ class Client:
                 f"Provided username doesn't match provided pattern: {pattern}"
             )
 
-        ids = None
-        names = None
+        ids: List[str] = []
+        names: List[str] = []
         if platform == Platform.steam:
             ids = await self._find_steam_ids(match)
         elif platform == Platform.epic:
-            ids = [player_id]
-            names = [player_id]
+            ids.append(player_id)
+            names.append(player_id)
         else:
-            names = [player_id]
+            names.append(player_id)
 
         return set(await self._get_profiles(platform, ids=ids, names=names))
 
