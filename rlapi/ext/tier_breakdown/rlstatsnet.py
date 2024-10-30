@@ -20,14 +20,12 @@ from typing import Dict, List
 from lxml import etree
 
 from rlapi import Client, PlaylistKey, errors
-from rlapi.player import DIVISIONS, RANKS
+from rlapi.player import DIVISIONS, Playlist
 
 log = logging.getLogger(__name__)
 
 __all__ = ("get_tier_breakdown",)
 
-_TIER_MAX = len(RANKS) - 1
-_DIVISION_MAX = len(DIVISIONS) - 1
 _TIER_IMAGE_PATH_RE = re.compile(r"/images/ranks/s\d+rank(?P<tier_id>\d+)\.png")
 _DIVISION_RANGE_RE = re.compile(
     r"Division (?P<division>[IV]+)\W+(?P<begin>\d+) +to +(?P<end>-?\d+)"
@@ -85,7 +83,7 @@ async def get_tier_breakdown(
         tier_nodes = playlist_node.findall("./div[2]/div/div/div/item")
 
         # max tier only has one division with no upper bound
-        tier_id = _TIER_MAX
+        tier_id = Playlist.TIER_MAX
         division_id = 0
         begin = int(tier_nodes[1].find("pre").text[:-1])
         end = 9999
