@@ -31,6 +31,10 @@ from .errors import (  # noqa
     Unauthorized as Unauthorized,
 )
 from .player import (  # noqa
+    DIVISIONS as DIVISIONS,
+    PLAYLISTS_WITH_SEASON_REWARDS as PLAYLISTS_WITH_SEASON_REWARDS,
+    RANKS as RANKS,
+    SEASON_REWARDS as SEASON_REWARDS,
     Player as Player,
     Playlist as Playlist,
     SeasonRewards as SeasonRewards,
@@ -59,6 +63,10 @@ __all__ = (
     "RLApiException",
     "Unauthorized",
     # player
+    "DIVISIONS",
+    "PLAYLISTS_WITH_SEASON_REWARDS",
+    "RANKS",
+    "SEASON_REWARDS",
     "Player",
     "Playlist",
     "SeasonRewards",

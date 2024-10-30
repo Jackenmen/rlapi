@@ -19,6 +19,12 @@ from .enums import Platform, PlaylistKey
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
 
+# The documentation of below constants needs to be manually repeated in docs/api.rst
+# due to: https://github.com/sphinx-doc/sphinx/issues/6495
+
+#: A sequence of rank names, indexed by the value of `Playlist.tier`.
+#:
+#: Rank names are only provided in the English language.
 RANKS = (
     "Unranked",
     "Bronze I",
@@ -44,7 +50,25 @@ RANKS = (
     "Grand Champion III",
     "Supersonic Legend",
 )
+#: A sequence of roman numerals for divisions,
+#: indexed by the value of `Playlist.division`.
 DIVISIONS = ("I", "II", "III", "IV")
+#: A sequence of season reward level names, indexed by the value of
+#: `SeasonRewards.level`.
+#:
+#: Season reward level names are only provided in the English language.
+SEASON_REWARDS = (
+    "Unranked",
+    "Bronze",
+    "Silver",
+    "Gold",
+    "Platinum",
+    "Diamond",
+    "Champion",
+    "Grand Champion",
+    "Supersonic Legend",
+)
+#: A sequence of playlists that can advance player's season rewards.
 PLAYLISTS_WITH_SEASON_REWARDS = (
     PlaylistKey.solo_duel,
     PlaylistKey.doubles,
@@ -55,7 +79,15 @@ PLAYLISTS_WITH_SEASON_REWARDS = (
     PlaylistKey.snow_day,
 )
 
-__all__ = ("Playlist", "SeasonRewards", "Player")
+__all__ = (
+    "RANKS",
+    "DIVISIONS",
+    "SEASON_REWARDS",
+    "PLAYLISTS_WITH_SEASON_REWARDS",
+    "Playlist",
+    "SeasonRewards",
+    "Player",
+)
 
 
 class Playlist:
@@ -98,7 +130,10 @@ class Playlist:
 
     """
 
+    #: Max tier, i.e. Supersonic Legend
     TIER_MAX: Final[int] = 22
+    #: Max division, i.e. Division IV
+    DIVISION_MAX: Final[int] = 3
 
     __slots__ = (
         "key",
@@ -186,6 +221,7 @@ class SeasonRewards:
 
     """
 
+    #: Max season reward level, i.e. Supersonic Legend
     MAX_LEVEL: Final[int] = 8
 
     __slots__ = ("level", "wins", "can_advance", "next_level")
