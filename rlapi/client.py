@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import asyncio
+import itertools
 import logging
 import re
 import time
 import warnings
-from typing import Any, Dict, List, Match, Optional, Set, Tuple, Union, cast
+from typing import Any, Dict, Iterable, List, Match, Optional, Set, Union, cast
 
 import aiohttp
 from lxml import etree
@@ -57,6 +58,7 @@ class Client:
     RLAPI_BASE = "https://api.rlpp.psynet.gg/public/v1"
     STEAM_BASE = "https://steamcommunity.com"
     EPIC_OAUTH_URL = "https://api.epicgames.dev/epic/oauth/v1/token"
+    SEARCH_QUERY_LIMIT = 10
 
     def __init__(
         self,
@@ -146,27 +148,39 @@ class Client:
         return TokenInfo(data["access_token"], expires_at)
 
     async def _rlapi_request(
-        self, endpoint: str, *, force_refresh_token: bool = False
-    ) -> Dict[str, Any]:
+        self,
+        endpoint: str,
+        *,
+        params: Optional[Dict[str, str]] = None,
+        force_refresh_token: bool = False,
+    ) -> List[Dict[str, Any]]:
         url = self.RLAPI_BASE + endpoint
         token = await self._get_access_token(force_refresh=force_refresh_token)
         headers = {"Authorization": f"Bearer {token}"}
         # RL API returns JSON object on success
-        data: Dict[str, Any]
+        data: List[Dict[str, Any]]
         try:
-            data = await self._request(url, headers)
+            data = await self._request(url, headers, params=params)
         except errors.Unauthorized:
             if force_refresh_token:
                 raise
-            data = await self._rlapi_request(endpoint, force_refresh_token=True)
+            data = await self._rlapi_request(
+                endpoint, params=params, force_refresh_token=True
+            )
         return data
 
     async def _request(
-        self, url: str, headers: Optional[aiohttp.typedefs.LooseHeaders] = None
+        self,
+        url: str,
+        headers: Optional[aiohttp.typedefs.LooseHeaders] = None,
+        params: Optional[Dict[str, str]] = None,
     ) -> Any:
         for tries in range(5):
-            async with self._session.get(url, headers=headers) as resp:
+            async with self._session.get(url, headers=headers, params=params) as resp:
                 data = await json_or_text(resp)
+                search_query_limit = int(resp.headers.get("X-Search-Query-Limit", 0))
+                if search_query_limit > 0:  # avoid infinite loops due to limit == 0
+                    self.SEARCH_QUERY_LIMIT = search_query_limit
                 if resp.status == 200:
                     return data
 
@@ -185,65 +199,199 @@ class Client:
         # still failed after 5 tries
         raise errors.HTTPException(resp, data)
 
-    async def _get_stats(self, player_id: str, platform: Platform) -> Player:
+    def _generate_request_chunks(
+        self, platform: Platform, ids: Iterable[str], names: Iterable[str]
+    ) -> Iterable[Dict[str, Any]]:
+        common_params = {"platform": platform.value}
+        count = 0
+        id_list: List[str] = []
+        params = {**common_params, "id[]": id_list}
+
+        for id_ in ids:
+            if count >= self.SEARCH_QUERY_LIMIT:
+                yield params
+                count = 0
+                id_list = []
+                params = {**common_params, "id[]": id_list}
+
+            id_list.append(id_)
+            count += 1
+
+        name_list: List[str]
+        params["name[]"] = name_list = []
+        for name_ in names:
+            if count >= self.SEARCH_QUERY_LIMIT:
+                yield params
+                count = 0
+                name_list = []
+                params = {**common_params, "name[]": name_list}
+
+            name_list.append(name_)
+            count += 1
+
+        if count:
+            yield params
+
+    async def _get_profiles(
+        self,
+        platform: Platform,
+        *,
+        ids: Optional[Iterable[str]] = None,
+        names: Optional[Iterable[str]] = None,
+        limit_reached: bool = False,
+    ) -> List[Player]:
         """
-        Get player skills for player ID in selected platform.
+        Get player profiles for given player IDs and names on the selected platform.
+
+        .. note::
+
+            This function will not raise when any of the given IDs/names
+            could not be found and will simply not include them in the results.
+            It isn't possible to easily map the returned players to given names (if any)
+            and thus it's also not easily possible to determine which (if any) names
+            are missing (and whether any identifiers were duplicated in the parameters).
 
         Parameters
         ----------
-        player_id: str
-            ID of player to find.
         platform: Platform
             Platform to search.
+        ids: str
+            IDs of the players to find.
+            This can be used on all platforms provided that you know the ID
+            but the API only returns it for Steam and Epic and therefore
+            you'll probably be limited to using it on those two platforms.
+        names: str
+            Names of the players to find.
+            This can be used on all platforms and does some kind of equality check
+            on display names, ignoring case-sensitivity and other undocumented things
+            such as some kind of accent-sensitivity. This means that you simply can't
+            lookup some players on non-Steam platforms because the query could sometimes
+            be fulfilled by multiple players.
+        limit_reached: bool
+            When search query imposed by the API is reached unexpectedly, the function
+            calls itself again accounting for the newly learnt search query limit.
+            When ``limit_reached=True`` is passed (as is the case when the function
+            calls itself, now knowing the proper limit), this behavior will be skipped.
 
         Returns
         -------
-        Player
-            Requested player skills.
+        `list` of `Player`
+            Requested player profiles.
 
         Raises
         ------
         HTTPException
             HTTP request to Rocket League API failed.
+
+        """
+        endpoint = "/player/profile"
+        players = []
+
+        ids = iter(ids or ())
+        names = iter(names or ())
+        for params in self._generate_request_chunks(platform, ids, names):
+            try:
+                raw_players = await self._rlapi_request(endpoint, params=params)
+            except errors.HTTPException as e:
+                if e.status != 400:
+                    raise
+                if limit_reached:
+                    raise
+                headers = e.response.headers
+                if headers["X-Search-Query-Limit"] < headers["X-Search-Query-Count"]:
+                    return await self._get_profiles(
+                        platform,
+                        ids=itertools.chain(params.get("id[]", []), ids),
+                        names=itertools.chain(params.get("name[]", []), names),
+                        limit_reached=True,
+                    )
+                raise
+
+            for player_data in raw_players:
+                players.append(
+                    Player(
+                        platform=platform,
+                        tier_breakdown=self.tier_breakdown,
+                        data=player_data,
+                    )
+                )
+
+        return players
+
+    async def get_player_by_id(self, platform: Platform, id_: str, /) -> Player:
+        """
+        Get player profile on the given platform matching the specified ID.
+
+        Parameters
+        ----------
+        id: str
+            ID of player to find.
+
+        Returns
+        -------
+        Player
+            Requested player profile.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
         PlayerNotFound
             The player could not be found.
 
         """
-        endpoint = f"/player/skill/{platform.value}/{player_id}"
+        players = await self._get_profiles(platform, ids=[id_])
         try:
-            player_data = await self._rlapi_request(endpoint)
-        except errors.HTTPException as e:
-            if e.status == 404:
-                raise errors.PlayerNotFound(
-                    "Player with provided ID could not be "
-                    f"found on platform {platform.value}"
-                )
-            raise
+            return players[0]
+        except IndexError:
+            raise errors.PlayerNotFound(
+                "Player with provided ID could not be found on the given platform."
+            ) from None
 
-        return Player(
-            platform=platform,
-            tier_breakdown=self.tier_breakdown,
-            data=player_data,
-        )
-
-    async def get_player(
-        self, player_id: str, platform: Optional[Platform] = None
-    ) -> Tuple[Player, ...]:
+    async def get_player_by_name(self, platform: Platform, name: str, /) -> Player:
         """
-        Get player skills for player ID by searching in all platforms.
+        Get player profile on the given platform matching the specified name.
+
+        Parameters
+        ----------
+        name: str
+            Display name of player to find.
+
+        Returns
+        -------
+        Player
+            Requested player profile.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+        PlayerNotFound
+            The player could not be found.
+
+        """
+
+        players = await self._get_profiles(platform, names=[name])
+        try:
+            return players[0]
+        except IndexError:
+            raise errors.PlayerNotFound(
+                "Player with provided name could not be found on the given platform."
+            ) from None
+
+    async def find_player(self, player_id: str, /) -> List[Player]:
+        """
+        Get player profiles for given player ID by searching in all platforms.
 
         Parameters
         ----------
         player_id: str
             ID of player to find.
-        platform: Platform, optional
-            Platform to search, if not provided
-            client will search on all platforms.
 
         Returns
         -------
-        `tuple` of `Player`
-            Requested player skills.
+        `list` of `Player`
+            Requested player profiles.
 
         Raises
         ------
@@ -253,9 +401,6 @@ class Client:
             The player could not be found on any platform.
 
         """
-        if platform is not None:
-            return (await self._get_stats(player_id, platform),)
-
         players: List[Player] = []
         for platform in Platform:
             try:
@@ -265,9 +410,9 @@ class Client:
         if not players:
             raise errors.PlayerNotFound(
                 "Player with provided ID could not be found on any platform."
-            )
+            ) from None
 
-        return tuple(players)
+        return players
 
     async def _find_profile(self, player_id: str, platform: Platform) -> Set[Player]:
         pattern = _PLATFORM_PATTERNS[platform]
@@ -277,19 +422,16 @@ class Client:
                 f"Provided username doesn't match provided pattern: {pattern}"
             )
 
-        players = set()
+        ids = None
+        names = None
         if platform == Platform.steam:
             ids = await self._find_steam_ids(match)
-        else:
+        elif platform == Platform.epic:
             ids = [player_id]
+        else:
+            names = [player_id]
 
-        for player_id_to_find in ids:
-            try:
-                player = await self._get_stats(player_id_to_find, platform)
-                players.add(player)
-            except errors.PlayerNotFound as e:
-                log.debug(str(e))
-        return players
+        return set(await self._get_profiles(platform, ids=ids, names=names))
 
     async def _find_steam_ids(self, match: Match[str]) -> List[str]:
         player_id = match.group(2)
