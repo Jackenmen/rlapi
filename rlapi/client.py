@@ -47,9 +47,7 @@ _PLATFORM_PATTERNS = {
     ),
     Platform.ps4: re.compile(r"[a-zA-Z][a-zA-Z0-9_-]{2,15}"),
     Platform.xboxone: re.compile(r"[a-zA-Z](?=.{0,15}$)([a-zA-Z0-9-_]+ ?)+"),
-    # Display Name pattern for Epic platform, used to be relevant:
-    # Platform.epic: re.compile(r".{3,16}"),
-    Platform.epic: re.compile(r"[0-9a-f]{32}"),
+    Platform.epic: re.compile(r"[0-9a-f]{32}|.{3,16}"),
     Platform.switch: re.compile(r".{1,10}"),
 }
 
@@ -428,6 +426,7 @@ class Client:
             ids = await self._find_steam_ids(match)
         elif platform == Platform.epic:
             ids = [player_id]
+            names = [player_id]
         else:
             names = [player_id]
 
