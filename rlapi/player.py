@@ -180,11 +180,15 @@ class SeasonRewards:
     wins: int
         Player's season reward wins.
     can_advance: bool
-        Tells if player can advance in season rewards.
+        Tells if player can advance to `next_level`.
+    next_level: int, optional
+        Next level of season rewards or ``None`` if max level has already been reached.
 
     """
 
-    __slots__ = ("level", "wins", "can_advance")
+    MAX_LEVEL: Final[int] = 8
+
+    __slots__ = ("level", "wins", "can_advance", "next_level")
 
     def __init__(self, *, highest_tier: int = 0, data: Dict[str, Any]) -> None:
         self.level: int = data.get("level") or 0
@@ -194,6 +198,7 @@ class SeasonRewards:
             self.can_advance = True
         else:
             self.can_advance = False
+        self.next_level = self.level + 1 if self.level != self.MAX_LEVEL else None
 
     def __repr__(self) -> str:
         return (
@@ -201,6 +206,7 @@ class SeasonRewards:
             f" level={self.level}"
             f" wins={self.wins}"
             f" can_advance={self.can_advance}"
+            f" next_level={self.next_level}"
             f">"
         )
 
