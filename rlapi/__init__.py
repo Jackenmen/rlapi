@@ -22,13 +22,23 @@ import pkgutil
 
 from . import errors as errors  # noqa
 from .client import Client as Client  # noqa
-from .enums import Platform as Platform, PlaylistKey as PlaylistKey  # noqa
+from .enums import (  # noqa
+    Platform as Platform,
+    PlaylistKey as PlaylistKey,
+    Stat as Stat,
+)
 from .errors import (  # noqa
     HTTPException as HTTPException,
     IllegalUsername as IllegalUsername,
     PlayerNotFound as PlayerNotFound,
     RLApiException as RLApiException,
     Unauthorized as Unauthorized,
+)
+from .leaderboard import (  # noqa
+    SkillLeaderboard as SkillLeaderboard,
+    SkillLeaderboardPlayer as SkillLeaderboardPlayer,
+    StatLeaderboard as StatLeaderboard,
+    StatLeaderboardPlayer as StatLeaderboardPlayer,
 )
 from .player import (  # noqa
     DIVISIONS as DIVISIONS,
@@ -64,12 +74,18 @@ __all__ = (
     # enums
     "Platform",
     "PlaylistKey",
+    "Stat",
     # errors
     "HTTPException",
     "IllegalUsername",
     "PlayerNotFound",
     "RLApiException",
     "Unauthorized",
+    # leaderboard
+    "SkillLeaderboard",
+    "SkillLeaderboardPlayer",
+    "StatLeaderboard",
+    "StatLeaderboardPlayer",
     # player
     "DIVISIONS",
     "PLAYLISTS_WITH_SEASON_REWARDS",

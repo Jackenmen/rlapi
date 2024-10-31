@@ -88,6 +88,9 @@ All enumerations are subclasses of `enum.Enum`.
 .. autoclass:: rlapi.Platform
     :members:
 
+.. autoclass:: rlapi.Stat
+    :members:
+
 Rocket League API Models
 ------------------------
 
@@ -104,6 +107,18 @@ and are not meant to be created by the user of the library.
     :members:
 
 .. autoclass:: rlapi.Playlist
+    :members:
+
+.. autoclass:: rlapi.SkillLeaderboard
+    :members:
+
+.. autoclass:: rlapi.SkillLeaderboardPlayer
+    :members:
+
+.. autoclass:: rlapi.StatLeaderboard
+    :members:
+
+.. autoclass:: rlapi.StatLeaderboardPlayer
     :members:
 
 .. autoclass:: rlapi.Population
