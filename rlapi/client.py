@@ -39,6 +39,7 @@ from . import errors
 from ._utils import TokenInfo, json_or_text
 from .enums import Platform
 from .player import Player
+from .population import Population
 from .typedefs import TierBreakdownType
 
 log = logging.getLogger(__name__)
@@ -597,3 +598,21 @@ class Client:
                 )
 
         return ids
+
+    async def get_population(self) -> Population:
+        """
+        Get population across different platforms and playlists.
+
+        Returns
+        -------
+        Population
+            Player population across different platforms and playlists.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+
+        """
+        data = await self._rlapi_request("/population")
+        return Population(data)
