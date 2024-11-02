@@ -75,6 +75,23 @@ class Platform(Enum):
         return _PLATFORM_FRIENDLY_NAMES[self]
 
 
+class Stat(Enum):
+    """Represents player stat."""
+
+    #: Assists.
+    assists = "Assists"
+    #: Goals.
+    goals = "Goals"
+    #: MVPs.
+    mvps = "MVPs"
+    #: Saves.
+    saves = "Saves"
+    #: Shots.
+    shots = "Shots"
+    #: Wins.
+    wins = "Wins"
+
+
 _PLATFORM_FRIENDLY_NAMES = {
     Platform.steam: "Steam",
     Platform.ps4: "PlayStation",

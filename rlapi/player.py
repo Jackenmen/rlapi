@@ -15,7 +15,7 @@
 import contextlib
 from typing import Any, Dict, Final, List, Optional, Union
 
-from .enums import Platform, PlaylistKey
+from .enums import Platform, PlaylistKey, Stat
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
 
@@ -260,6 +260,11 @@ class PlayerStats:
     """PlayerStats()
     Represents player stats (assists, goals, MVPs, etc.).
 
+    .. container:: operations
+
+        ``x[key]``
+            Lookup player's stat value by `Stat` enum.
+
     Attributes
     ----------
     assists: int
@@ -294,10 +299,8 @@ class PlayerStats:
         self.shots: int = stats.get("shots", 0)
         self.wins: int = stats.get("wins", 0)
 
-    def __getitem__(self, key: str) -> int:
-        if key not in self.__slots__:
-            raise KeyError(key)
-        return int(getattr(self, key))
+    def __getitem__(self, stat: Stat) -> int:
+        return int(getattr(self, stat.name))
 
     def __repr__(self) -> str:
         attrs = " ".join(f"{key}={getattr(self, key)}" for key in self.__slots__)

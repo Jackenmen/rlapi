@@ -37,7 +37,8 @@ from lxml import etree
 
 from . import errors
 from ._utils import TokenInfo, json_or_text
-from .enums import Platform
+from .enums import Platform, PlaylistKey, Stat
+from .leaderboard import SkillLeaderboard, StatLeaderboard
 from .player import Player
 from .population import Population
 from .typedefs import TierBreakdownType
@@ -616,3 +617,57 @@ class Client:
         """
         data = await self._rlapi_request("/population")
         return Population(data)
+
+    async def get_skill_leaderboard(
+        self, platform: Platform, playlist_key: PlaylistKey
+    ) -> SkillLeaderboard:
+        """
+        Get skill leaderboard for the playlist on the given platform.
+
+        Parameters
+        ----------
+        platform: Platform
+            Platform to get the leaderboard for.
+        playlist_key: PlaylistKey
+            Playlist to get the leaderboard for.
+
+        Returns
+        -------
+        SkillLeaderboard
+            Skill leaderboard for the playlist on the given platform.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+        """
+        endpoint = f"/leaderboard/skill/{platform.value}/{playlist_key.value}"
+        data = await self._rlapi_request(endpoint)
+        return SkillLeaderboard(platform, playlist_key, data)
+
+    async def get_stat_leaderboard(
+        self, platform: Platform, stat: Stat
+    ) -> StatLeaderboard:
+        """
+        Get leaderboard for the specified stat on the given platform.
+
+        Parameters
+        ----------
+        platform: Platform
+            Platform to get the leaderboard for.
+        stat: Stat
+            Stat to get the leaderboard for.
+
+        Returns
+        -------
+        StatLeaderboard
+            Leaderboard for the specified stat on the given platform.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+        """
+        endpoint = f"/leaderboard/stat/{platform.value}/{stat.value}"
+        data = await self._rlapi_request(endpoint)
+        return StatLeaderboard(platform, stat, data)
