@@ -109,6 +109,9 @@ and are not meant to be created by the user of the library.
 .. autoclass:: rlapi.Playlist
     :members:
 
+.. autoclass:: rlapi.PlayerTitle
+    :members:
+
 .. autoclass:: rlapi.SkillLeaderboard
     :members:
 

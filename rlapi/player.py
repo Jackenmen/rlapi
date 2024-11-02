@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import contextlib
-from typing import Any, Dict, Final, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 from .enums import Platform, PlaylistKey, Stat
+from .player_titles import PlayerTitle
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
+
+if TYPE_CHECKING:
+    from .client import Client
 
 # The documentation of below constants needs to be manually repeated in docs/api.rst
 # due to: https://github.com/sphinx-doc/sphinx/issues/6495
@@ -336,6 +342,7 @@ class Player:
     """
 
     __slots__ = (
+        "_client",
         "platform",
         "user_id",
         "user_name",
@@ -349,10 +356,12 @@ class Player:
     def __init__(
         self,
         *,
+        client: Client,
         tier_breakdown: Optional[TierBreakdownType] = None,
         platform: Platform,
         data: Dict[str, Any],
     ) -> None:
+        self._client = client
         self.platform = platform
         self.user_id: Optional[str] = data.get("player_id")
         self.user_name: str = data["player_name"]
@@ -408,6 +417,29 @@ class Player:
         if self.user_id is not None:
             return hash((self.platform, "by_user_id", self.user_id))
         return hash((self.platform, "by_user_name", self.user_name))
+
+    async def titles(self) -> List[PlayerTitle]:
+        """
+        Get player's titles.
+
+        .. note::
+
+            Some titles that the player has may not be included in the response.
+
+        Returns
+        -------
+        `list` of `PlayerTitle`
+            List of player's titles.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+        """
+        if self.platform in (Platform.steam, Platform.epic):
+            assert self.user_id is not None
+            return await self._client.get_player_titles(self.platform, self.user_id)
+        return await self._client.get_player_titles(self.platform, self.user_name)
 
     def get_playlist(self, playlist_key: PlaylistKey) -> Optional[Playlist]:
         """
