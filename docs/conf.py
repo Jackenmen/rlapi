@@ -86,6 +86,10 @@ html_static_path = ["_static"]
 # -- Options for linkcheck builder ----------------------------------------
 
 linkcheck_retries = 3
+linkcheck_ignore = [
+    # Cloudflare annoyances
+    r"https://epicgames.com/help/*",
+]
 
 
 # -- Options for extensions -----------------------------------------------

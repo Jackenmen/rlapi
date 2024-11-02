@@ -97,7 +97,9 @@ class Playlist:
     .. container:: operations
 
         ``str(x)``
-            Returns playlist's rank string, e.g. "Champion I Div III"
+            Returns playlist's rank string, e.g. "Champion I Div III".
+
+            This is only provided in the English language.
 
     Attributes
     ----------
@@ -120,6 +122,13 @@ class Playlist:
         Number of matches played on this playlist during the current season.
     lifetime_matches_played: int
         Number of matches played on this playlist since player started playing the game.
+
+        .. note::
+
+            This number does not seem to include some of the earlier seasons.
+            It is estimated that it include all matches played in Season 4
+            (before Free To Play update) and later.
+
     placement_matches_played: int
         Number of placement matches played on this playlist during the current season.
         Maxes out at 10.
@@ -305,7 +314,8 @@ class Player:
         Player's platform.
     user_id: str, optional
         Player's user ID.
-        Only present for Steam and Epic Games players.
+        Present when the data was looked up by user ID
+        or when the lookup platform was Steam or Epic Games.
     user_name: str
         Player's username (display name).
     playlists: dict

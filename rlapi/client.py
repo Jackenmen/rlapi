@@ -191,12 +191,10 @@ class Client:
         *,
         params: Optional[Dict[str, str]] = None,
         force_refresh_token: bool = False,
-    ) -> List[Dict[str, Any]]:
+    ) -> Any:
         url = self.RLAPI_BASE + endpoint
         token = await self._get_access_token(force_refresh=force_refresh_token)
         headers = {"Authorization": f"Bearer {token}"}
-        # RL API returns JSON object on success
-        data: List[Dict[str, Any]]
         try:
             data = await self._request(url, headers, params=params)
         except errors.Unauthorized:
@@ -291,7 +289,10 @@ class Client:
         limit_reached: bool = False,
     ) -> AsyncIterable[Player]:
         """
-        Get player profiles for given player IDs and names on the selected platform.
+        Get an asynchronous iterable of player profiles for given player IDs
+        and names on the selected platform.
+
+        See `platform-player-ids` section for supported lookup identifiers.
 
         .. note::
 
@@ -323,10 +324,11 @@ class Client:
             When ``limit_reached=True`` is passed (as is the case when the function
             calls itself, now knowing the proper limit), this behavior will be skipped.
 
-        Returns
-        -------
-        `list` of `Player`
-            Requested player profiles.
+        Yields
+        ------
+        Player
+            The requested player profile.
+            The order the player profiles are yielded in should not be depended on.
 
         Raises
         ------
@@ -379,6 +381,8 @@ class Client:
         """
         Get player profile on the given platform matching the specified ID.
 
+        See `platform-player-ids` section for supported lookup identifiers.
+
         Parameters
         ----------
         id: str
@@ -408,6 +412,8 @@ class Client:
     async def get_player_by_name(self, platform: Platform, name: str, /) -> Player:
         """
         Get player profile on the given platform matching the specified name.
+
+        See `platform-player-ids` section for supported lookup identifiers.
 
         Parameters
         ----------
@@ -439,6 +445,8 @@ class Client:
     async def find_player(self, player_id: str, /) -> List[Player]:
         """
         Get player profiles for given player ID by searching in all platforms.
+
+        See `platform-player-ids` section for supported lookup identifiers.
 
         Parameters
         ----------
@@ -479,7 +487,10 @@ class Client:
         names: Iterable[str] = (),
     ) -> AsyncIterable[Player]:
         """
-        Get player profiles for given player IDs and names on the selected platform.
+        Get an asynchronous iterable of player profiles for given player IDs
+        and names on the selected platform.
+
+        See `platform-player-ids` section for supported lookup identifiers.
 
         .. note::
 
@@ -506,10 +517,11 @@ class Client:
             lookup some players on non-Steam platforms because the query could sometimes
             be fulfilled by multiple players.
 
-        Returns
-        -------
-        `list` of `Player`
-            Requested player profiles.
+        Yields
+        ------
+        Player
+            The requested player profile.
+            The order the player profiles are yielded in should not be depended on.
 
         Raises
         ------
