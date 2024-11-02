@@ -106,6 +106,18 @@ and are not meant to be created by the user of the library.
 .. autoclass:: rlapi.Playlist
     :members:
 
+.. autoclass:: rlapi.Population
+    :members:
+
+.. autoclass:: rlapi.PlatformPopulation
+    :members:
+
+.. autoclass:: rlapi.PopulationEntry
+    :members:
+
+.. autoclass:: rlapi.PopulationPlaylist
+    :members:
+
 .. autoclass:: rlapi.tier_estimates.TierEstimates
     :members:
 
@@ -140,6 +152,12 @@ when interpreting data from the API.
     :value: (PlaylistKey.solo_duel, PlaylistKey.doubles, ..., PlaylistKey.snow_day)
 
     A sequence of playlists that can advance player's season rewards.
+
+.. data:: rlapi.KNOWN_POPULATION_PLAYLISTS
+    :value: {0: <PopulationPlaylist Main Menu (0) player_count=1>, ...}
+
+    A mapping of known population playlist IDs to
+    their `rlapi.PopulationPlaylist` objects.
 
 Exceptions
 ----------
