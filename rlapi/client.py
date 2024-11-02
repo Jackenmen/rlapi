@@ -316,11 +316,18 @@ class Client:
             you'll probably be limited to using it on those two platforms.
         names: str
             Names of the players to find.
+
             This can be used on all platforms and does some kind of equality check
             on display names, ignoring case-sensitivity and other undocumented things
-            such as some kind of accent-sensitivity. This means that you simply can't
-            lookup some players on non-Steam platforms because the query could sometimes
-            be fulfilled by multiple players.
+            such as some kind of accent-sensitivity.
+
+            The above means that, for some platforms, you simply can't lookup some
+            players by name because the query could sometimes be fulfilled by
+            multiple players.
+            This is mainly a problem for Epic Games, and Nintendo Switch
+            platforms. It is also not recommended to use this lookup method for Steam
+            since the SteamID is easily available on this platform and display names
+            are not unique.
         limit_reached: bool
             When search query imposed by the API is reached unexpectedly, the function
             calls itself again accounting for the newly learnt search query limit.
@@ -329,7 +336,7 @@ class Client:
 
         Yields
         ------
-        Player
+        `Player`
             The requested player profile.
             The order the player profiles are yielded in should not be depended on.
 
@@ -515,15 +522,22 @@ class Client:
             you'll probably be limited to using it on those two platforms.
         names: str
             Names of the players to find.
+
             This can be used on all platforms and does some kind of equality check
             on display names, ignoring case-sensitivity and other undocumented things
-            such as some kind of accent-sensitivity. This means that you simply can't
-            lookup some players on non-Steam platforms because the query could sometimes
-            be fulfilled by multiple players.
+            such as some kind of accent-sensitivity.
+
+            The above means that, for some platforms, you simply can't lookup some
+            players by name because the query could sometimes be fulfilled by
+            multiple players.
+            This is mainly a problem for Epic Games, and Nintendo Switch
+            platforms. It is also not recommended to use this lookup method for Steam
+            since the SteamID is easily available on this platform and display names
+            are not unique.
 
         Yields
         ------
-        Player
+        `Player`
             The requested player profile.
             The order the player profiles are yielded in should not be depended on.
 
