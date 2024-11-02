@@ -50,6 +50,7 @@ from .player import (  # noqa
     Playlist as Playlist,
     SeasonRewards as SeasonRewards,
 )
+from .player_titles import PlayerTitle
 from .population import (  # noqa
     KNOWN_POPULATION_PLAYLISTS as KNOWN_POPULATION_PLAYLISTS,
     PlatformPopulation as PlatformPopulation,
@@ -95,6 +96,8 @@ __all__ = (
     "PlayerStats",
     "Playlist",
     "SeasonRewards",
+    # player_titles
+    "PlayerTitle",
     # population
     "KNOWN_POPULATION_PLAYLISTS",
     "PlatformPopulation",

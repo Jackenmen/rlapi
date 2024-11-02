@@ -40,6 +40,7 @@ from ._utils import TokenInfo, json_or_text
 from .enums import Platform, PlaylistKey, Stat
 from .leaderboard import SkillLeaderboard, StatLeaderboard
 from .player import Player
+from .player_titles import PlayerTitle
 from .population import Population
 from .typedefs import TierBreakdownType
 
@@ -374,6 +375,7 @@ class Client:
 
             for player_data in raw_players:
                 yield Player(
+                    client=self,
                     platform=platform,
                     tier_breakdown=self.tier_breakdown,
                     data=player_data,
@@ -599,6 +601,39 @@ class Client:
                 )
 
         return ids
+
+    async def get_player_titles(
+        self, platform: Platform, player_id: str
+    ) -> List[PlayerTitle]:
+        """
+        Get player's titles.
+
+        .. note::
+
+            Some titles that the player has may not be included in the response.
+
+        Parameters
+        ----------
+        platform: Platform
+            Platform to lookup the player on.
+        player_id: str
+            Identifier to lookup the player by.
+            This needs to be a user ID for the Steam and Epic platforms
+            and a name for the rest of the platforms.
+
+        Returns
+        -------
+        `list` of `PlayerTitle`
+            List of player's titles.
+
+        Raises
+        ------
+        HTTPException
+            HTTP request to Rocket League failed.
+        """
+        endpoint = f"/player/titles/{platform.value}/{player_id}"
+        data = await self._rlapi_request(endpoint)
+        return [PlayerTitle(title_id) for title_id in data["titles"]]
 
     async def get_population(self) -> Population:
         """
