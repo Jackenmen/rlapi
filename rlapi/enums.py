@@ -24,6 +24,8 @@ class PlaylistKey(IntEnum):
 
         ``str(x)``
             Returns playlist's friendly name, e.g. "Solo Duel"
+
+            This is only provided in the English language.
     """
 
     #: The Solo Duel playlist.
@@ -60,7 +62,7 @@ class Platform(Enum):
 
     #: The Steam platform.
     steam = "Steam"
-    #: The PlayStation 4 platform.
+    #: The PlayStation platform.
     ps4 = "PS4"
     #: The Xbox One platform.
     xboxone = "XboxOne"
@@ -75,7 +77,7 @@ class Platform(Enum):
 
 _PLATFORM_FRIENDLY_NAMES = {
     Platform.steam: "Steam",
-    Platform.ps4: "PlayStation 4",
+    Platform.ps4: "PlayStation",
     Platform.xboxone: "Xbox One",
     Platform.epic: "Epic Games",
     Platform.switch: "Nintendo Switch",
