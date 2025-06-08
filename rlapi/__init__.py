@@ -53,9 +53,8 @@ from .player import (  # noqa
 from .player_titles import PlayerTitle
 from .population import (  # noqa
     KNOWN_POPULATION_PLAYLISTS as KNOWN_POPULATION_PLAYLISTS,
-    PlatformPopulation as PlatformPopulation,
+    PlaylistPopulation as PlaylistPopulation,
     Population as Population,
-    PopulationEntry as PopulationEntry,
     PopulationPlaylist as PopulationPlaylist,
 )
 
@@ -100,8 +99,7 @@ __all__ = (
     "PlayerTitle",
     # population
     "KNOWN_POPULATION_PLAYLISTS",
-    "PlatformPopulation",
+    "PlaylistPopulation",
     "Population",
-    "PopulationEntry",
     "PopulationPlaylist",
 )

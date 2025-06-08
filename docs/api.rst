@@ -127,10 +127,7 @@ and are not meant to be created by the user of the library.
 .. autoclass:: rlapi.Population
     :members:
 
-.. autoclass:: rlapi.PlatformPopulation
-    :members:
-
-.. autoclass:: rlapi.PopulationEntry
+.. autoclass:: rlapi.PlaylistPopulation
     :members:
 
 .. autoclass:: rlapi.PopulationPlaylist
