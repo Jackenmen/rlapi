@@ -5,8 +5,7 @@ from .enums import Platform
 __all__ = (
     "PopulationPlaylist",
     "KNOWN_POPULATION_PLAYLISTS",
-    "PopulationEntry",
-    "PlatformPopulation",
+    "PlaylistPopulation",
     "Population",
 )
 
@@ -523,72 +522,34 @@ _KNOWN_PLAYLISTS = (
 KNOWN_POPULATION_PLAYLISTS = {playlist.id: playlist for playlist in _KNOWN_PLAYLISTS}
 
 
-class PopulationEntry:
-    """PopulationEntry()
-    Describes population for a Rocket League playlist on a single platform.
+class PlaylistPopulation:
+    """PlaylistPopulation()
+    Describes population of a Rocket League playlist.
 
     Attributes
     ----------
-    platform: `Platform`
-        Platform that this entry's number of players refers to.
-    playlist: `Playlist`
-        Playlist that this entry's number of players refers to.
+    playlist: `PopulationPlaylist`
+        Playlist that this instance refers to.
         If the playlist is known, this will use a constant value
         with additional information.
-    num_players: int
-        Number of players who are currently online on this playlist.
+    platforms: dict
+        Mapping of platforms (`Platform`) to their number of online players (`int`)
+        for this playlist.
     """
 
-    __slots__ = ("platform", "playlist", "num_players")
+    __slots__ = ("playlist", "platforms")
 
-    def __init__(self, platform: Platform, data: Dict[str, Any]) -> None:
-        self.platform = platform
+    def __init__(self, playlist_id: int) -> None:
         try:
-            self.playlist = KNOWN_POPULATION_PLAYLISTS[data["PlaylistID"]]
+            self.playlist = KNOWN_POPULATION_PLAYLISTS[playlist_id]
         except KeyError:
-            self.playlist = PopulationPlaylist(
-                data["PlaylistID"], "Unknown", is_known=False
-            )
-        self.num_players: int = data["NumPlayers"]
+            self.playlist = PopulationPlaylist(playlist_id, "Unknown", is_known=False)
+        self.platforms: Dict[Platform, int] = {}
 
     def __repr__(self) -> str:
-        platform_repr = f"{self.platform.__class__.__name__}.{self.platform._name_}"
         return (
             f"<{self.__class__.__name__}"
-            f" platform={platform_repr}"
             f" playlist={self.playlist!r}"
-            f" num_players={self.num_players}"
-            ">"
-        )
-
-
-class PlatformPopulation:
-    """PlatformPopulation()
-    Describes population of a single Rocket League platform.
-
-    Attributes
-    ----------
-    platform: `Platform`
-        Platform that this population object refers to.
-    playlists: dict
-        Mapping of playlist IDs (`int`) to their entries (`PopulationEntry`).
-        For ranked playlists, it is possible to do a lookup by their `PlaylistKey`.
-    """
-
-    __slots__ = ("platform", "playlists")
-
-    def __init__(self, platform: Platform, data: List[Dict[str, Any]]) -> None:
-        self.platform = platform
-        self.playlists = {}
-        for raw_population_entry in data:
-            entry = PopulationEntry(platform, raw_population_entry)
-            self.playlists[entry.playlist.id] = entry
-
-    def __repr__(self) -> str:
-        platform_repr = f"{self.platform.__class__.__name__}.{self.platform._name_}"
-        return (
-            f"<{self.__class__.__name__}"
-            f" platform={platform_repr}"
             f" num_players={self.num_players}"
             ">"
         )
@@ -596,10 +557,10 @@ class PlatformPopulation:
     @property
     def num_players(self) -> int:
         """
-        Total number of players who are currently online on the platform
-        across all playlists.
+        Total number of players who are currently online on this playlist
+        across all platforms.
         """
-        return sum(entry.num_players for entry in self.playlists.values())
+        return sum(num_players for num_players in self.platforms.values())
 
 
 class Population:
@@ -609,16 +570,25 @@ class Population:
     Attributes
     ----------
     playlists: dict
-        Mapping of platforms (`Platform`) to their populations (`PlatformPopulation`).
+        Mapping of playlist IDs (`int`) to their population (`PlaylistPopulation`).
+        For ranked playlists, it is possible to do a lookup by their `PlaylistKey`.
     """
 
-    __slots__ = ("platforms",)
+    __slots__ = ("playlists",)
 
     def __init__(self, data: Dict[str, List[Dict[str, Any]]]) -> None:
-        self.platforms = {}
+        self.playlists: Dict[int, PlaylistPopulation] = {}
         for raw_platform, raw_population in data.items():
             platform = Platform(raw_platform)
-            self.platforms[platform] = PlatformPopulation(platform, raw_population)
+            for raw_population_entry in raw_population:
+                playlist_id = raw_population_entry["PlaylistID"]
+                playlist_population = self.playlists.get(playlist_id)
+                if playlist_population is None:
+                    playlist_population = PlaylistPopulation(playlist_id)
+                    self.playlists[playlist_id] = playlist_population
+
+                num_players = raw_population_entry["NumPlayers"]
+                playlist_population.platforms[platform] = num_players
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} num_players={self.num_players}>"
@@ -628,4 +598,4 @@ class Population:
         """
         Total number of players who are currently online on all platforms and playlists.
         """
-        return sum(population.num_players for population in self.platforms.values())
+        return sum(population.num_players for population in self.playlists.values())
