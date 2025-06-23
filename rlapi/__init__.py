@@ -50,13 +50,8 @@ from .player import (  # noqa
     Playlist as Playlist,
     SeasonRewards as SeasonRewards,
 )
-from .player_titles import PlayerTitle
-from .population import (  # noqa
-    KNOWN_POPULATION_PLAYLISTS as KNOWN_POPULATION_PLAYLISTS,
-    PlaylistPopulation as PlaylistPopulation,
-    Population as Population,
-    PopulationPlaylist as PopulationPlaylist,
-)
+from .models import PlayerTitle
+from .models import Population
 
 pkg = pkgutil.get_data(__package__, "VERSION")
 __version__ = pkg.decode("ascii").strip() if pkg is not None else ""
@@ -98,8 +93,5 @@ __all__ = (
     # player_titles
     "PlayerTitle",
     # population
-    "KNOWN_POPULATION_PLAYLISTS",
-    "PlaylistPopulation",
     "Population",
-    "PopulationPlaylist",
 )

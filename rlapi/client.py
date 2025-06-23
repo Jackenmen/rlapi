@@ -37,11 +37,11 @@ from lxml import etree
 
 from . import errors
 from ._utils import TokenInfo, json_or_text
+from .config import PsynetConfig
 from .enums import Platform, PlaylistKey, Stat
 from .leaderboard import SkillLeaderboard, StatLeaderboard
 from .player import Player
-from .player_titles import PlayerTitle
-from .population import Population
+from .models import PlayerTitle, Population
 from .typedefs import TierBreakdownType
 
 log = logging.getLogger(__name__)
@@ -113,6 +113,7 @@ class Client:
         self._client_secret = client_secret
         self._token_info: Optional[TokenInfo] = None
         self._xml_parser = etree.XMLParser(resolve_entities=False)
+        self._psynet_config = PsynetConfig(self._session)
         self.tier_breakdown: TierBreakdownType
         if tier_breakdown is None:
             # cast of empty list to a type needed here
@@ -211,13 +212,13 @@ class Client:
     async def _request(
         self,
         url: str,
-        headers: Optional[aiohttp.typedefs.LooseHeaders] = None,
+        headers: Optional[Dict[str, str]] = None,
         params: Optional[Dict[str, str]] = None,
     ) -> Any:
         for tries in range(5):
             async with self._session.get(url, headers=headers, params=params) as resp:
                 data = await json_or_text(resp)
-                search_query_limit = int(resp.headers.get("X-Search-Query-Limit", 0))
+                search_query_limit = int(resp.headers.get("X-Search-Query-Limit", "0"))
                 if search_query_limit > 0:  # avoid infinite loops due to limit == 0
                     self.SEARCH_QUERY_LIMIT = search_query_limit
                 if resp.status == 200:
@@ -616,42 +617,27 @@ class Client:
 
         return ids
 
-    async def get_player_titles(
-        self, platform: Platform, player_id: str
-    ) -> List[PlayerTitle]:
+    async def get_player_titles(self) -> List[PlayerTitle]:
         """
-        Get player's titles.
-
-        .. note::
-
-            Some titles that the player has may not be included in the response.
-
-        Parameters
-        ----------
-        platform: Platform
-            Platform to lookup the player on.
-        player_id: str
-            Identifier to lookup the player by.
-            This needs to be a user ID for the Steam and Epic platforms
-            and a name for the rest of the platforms.
+        Get player titles from Psynet config.
 
         Returns
         -------
         `list` of `PlayerTitle`
-            List of player's titles.
+            List of player titles.
 
         Raises
         ------
         HTTPException
-            HTTP request to Rocket League failed.
+            HTTP request to Psynet config failed.
         """
-        endpoint = f"/player/titles/{platform.value}/{player_id}"
-        data = await self._rlapi_request(endpoint)
-        return [PlayerTitle(title_id) for title_id in data["titles"]]
+        await self._psynet_config.fetch_config()
+        data = self._psynet_config.get_player_titles_data()
+        return [PlayerTitle(title_id) for title_id in data.keys()]
 
     async def get_population(self) -> Population:
         """
-        Get population across different platforms and playlists.
+        Get population across different platforms and playlists from Psynet config.
 
         Returns
         -------
@@ -661,10 +647,10 @@ class Client:
         Raises
         ------
         HTTPException
-            HTTP request to Rocket League failed.
-
+            HTTP request to Psynet config failed.
         """
-        data = await self._rlapi_request("/population")
+        await self._psynet_config.fetch_config()
+        data = self._psynet_config.get_population_data()
         return Population(data)
 
     async def get_skill_leaderboard(
