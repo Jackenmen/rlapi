@@ -129,6 +129,7 @@ class Client:
         """
         await self._session.close()
 
+
     def destroy(self) -> None:
         """
         Detach underlying session.
@@ -217,7 +218,7 @@ class Client:
         for tries in range(5):
             async with self._session.get(url, headers=headers, params=params) as resp:
                 data = await json_or_text(resp)
-                search_query_limit = int(resp.headers.get("X-Search-Query-Limit", 0))
+                search_query_limit = int(resp.headers.get("X-Search-Query-Limit", "0"))
                 if search_query_limit > 0:  # avoid infinite loops due to limit == 0
                     self.SEARCH_QUERY_LIMIT = search_query_limit
                 if resp.status == 200:
