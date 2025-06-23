@@ -18,7 +18,7 @@ import contextlib
 from typing import TYPE_CHECKING, Any, Dict, Final, List, Optional, Union
 
 from .enums import Platform, PlaylistKey, Stat
-from .player_titles import PlayerTitle
+from .models import PlayerTitle
 from .tier_estimates import TierEstimates
 from .typedefs import PlaylistBreakdownType, TierBreakdownType
 
@@ -436,10 +436,7 @@ class Player:
         HTTPException
             HTTP request to Rocket League failed.
         """
-        if self.platform in (Platform.steam, Platform.epic):
-            assert self.user_id is not None
-            return await self._client.get_player_titles(self.platform, self.user_id)
-        return await self._client.get_player_titles(self.platform, self.user_name)
+        return await self._client.get_player_titles()
 
     def get_playlist(self, playlist_key: PlaylistKey) -> Optional[Playlist]:
         """
